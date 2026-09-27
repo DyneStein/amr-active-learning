@@ -1,0 +1,7 @@
+numpy
+pandas
+scipy
+scikit-learn
+xgboost>=2.0
+matplotlib
+requests
