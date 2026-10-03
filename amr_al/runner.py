@@ -37,8 +37,11 @@ def all_jobs(experiments=None):
     for exp in exps:
         e = config.EXPERIMENTS[exp]
         sites = e.get("sites", ["DRIAMS-A"]) if e["setting"] == "crosssite" else ["DRIAMS-A"]
+        skip = {tuple(x) for x in e.get("skip", [])}
         for pair in e["pairs"]:
             for site in sites:
+                if (pair, site) in skip:
+                    continue
                 for seed in e["seeds"]:
                     base = dict(exp=exp, setting=e["setting"], pair=pair, site=site, seed=seed)
                     if e.get("include_bounds"):

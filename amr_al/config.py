@@ -81,7 +81,9 @@ EXPERIMENTS = {
     "E4_crosssite": dict(setting="crosssite", pairs=list(PAIRS),
                          strategies=["random", "uncertainty", "diversity", "hybrid"],
                          budgets=[25, 50, 100, 200, 400], seeds=list(range(5)),
-                         include_bounds=True, sites=TARGET_SITES),
+                         include_bounds=True, sites=TARGET_SITES,
+                         # DRIAMS-D has no labelled S. aureus-oxacillin isolates (audit, 4 Oct 2026)
+                         skip=[("saur_oxa", "DRIAMS-D")]),
 }
 # order in which workers pick up experiments (core paper first)
 PRIORITY = ["E1_temporal", "E3_routing", "E2_semisup", "E4_crosssite"]

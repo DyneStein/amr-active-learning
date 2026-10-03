@@ -12,8 +12,8 @@ this log records what they showed and every decision taken because of them.
 | E1_temporal | RQ1, RQ2 | 660 | 660 | done 4 Oct 2026 |
 | E3_routing | RQ5 | 180 | 180 | done 4 Oct 2026 |
 | E2_semisup | RQ3 | 390 | 390 | done 4 Oct 2026 |
-| E4_crosssite | RQ4 | 990 | 0 | data ready 4 Oct; to run |
-| **Total** | | **2 220** | **1 230** | |
+| E4_crosssite | RQ4 | 880 | 0 | S. aureus at D dropped (no labels); to run |
+| **Total** | | **2 110** | **1 230** | |
 
 ## Checklist
 
@@ -32,6 +32,24 @@ this log records what they showed and every decision taken because of them.
 - [ ] Confirm target-journal impact factors on JCR
 
 ---
+
+## 2026-10-04 · Target-site audit for E4
+
+| Pair | DRIAMS-B n (R, %R) | DRIAMS-C n (R, %R) | DRIAMS-D n (R, %R) |
+|---|---|---|---|
+| ecoli_cro | 213 (45, 21.1%) | 916 (151, 16.5%) | 1 994 (198, 9.9%) |
+| kpneu_cro | 152 (18, 11.8%) | 366 (55, 15.0%) | 2 151 (123, 5.7%) |
+| saur_oxa | 346 (21, 6.1%) | 738 (41, 5.6%) | **0** |
+
+- DRIAMS-D has no labelled S. aureus–oxacillin isolates → combination removed from E4 (`skip` in config; 110 jobs),
+  E4 = 880 jobs. Self-test 17/17 after the change.
+- Very few resistant isolates at DRIAMS-B (18-45) and for S. aureus everywhere: after the 50/50 pool/test split the
+  test sets hold about 9-23 resistant isolates, so AUROC/VME there are noisy; report with confidence intervals and
+  flag as low-power. At B the pool (76-173 isolates) is smaller than the largest budgets, so budgets 200/400 equal
+  "label everything".
+- The share of resistant isolates differs strongly between hospitals (e.g. K. pneumoniae 5.7% at D vs 13.9% at A in
+  2018): label shift is part of the cross-site problem.
+- Before relaunching: upload the new `amr_al/config.py` and `amr_al/runner.py` to Drive.
 
 ## 2026-10-04 · E1, E3, E2 complete; DRIAMS-B/C/D downloaded
 
