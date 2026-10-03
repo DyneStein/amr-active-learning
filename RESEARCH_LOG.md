@@ -9,11 +9,11 @@ this log records what they showed and every decision taken because of them.
 
 | Experiment | Question | Jobs | Done | Notes |
 |---|---|---|---|---|
-| E1_temporal | RQ1, RQ2 | 660 | 0 | runs first |
-| E3_routing | RQ5 | 180 | 0 | |
-| E2_semisup | RQ3 | 390 | 0 | |
-| E4_crosssite | RQ4 | 990 | 0 | needs DRIAMS-B/C/D |
-| **Total** | | **2 220** | **0** | |
+| E1_temporal | RQ1, RQ2 | 660 | 660 | done 4 Oct 2026 |
+| E3_routing | RQ5 | 180 | 180 | done 4 Oct 2026 |
+| E2_semisup | RQ3 | 390 | 390 | done 4 Oct 2026 |
+| E4_crosssite | RQ4 | 990 | 0 | data ready 4 Oct; to run |
+| **Total** | | **2 220** | **1 230** | |
 
 ## Checklist
 
@@ -25,12 +25,31 @@ this log records what they showed and every decision taken because of them.
 - [x] Checks before notebook 02: no date column (pseudo-batches); MALDI1/MALDI2 = instrument, almost no duplicates
 - [x] Notebook 02: audit tables, tuned settings, premise check (gap per pair) (3 Oct 2026)
 - [ ] Supervisor check-in on the premise result (premise holds: gaps 0.042-0.057)
-- [ ] Notebook 03 workers: E1 -> E3 -> E2
-- [ ] Notebook 01 again with DRIAMS-B/C/D, then E4
+- [x] Notebook 03 workers: E1 -> E3 -> E2 (1 230 jobs, 4 Oct 2026)
+- [x] Notebook 01 again with DRIAMS-B/C/D (4 Oct 2026)
+- [ ] E4 workers
 - [ ] Formal Scopus / PubMed novelty search (queries in `docs/Literature_Check.pdf`)
 - [ ] Confirm target-journal impact factors on JCR
 
 ---
+
+## 2026-10-04 · E1, E3, E2 complete; DRIAMS-B/C/D downloaded
+
+- Status: E1_temporal 660/660, E3_routing 180/180, E2_semisup 390/390 done, 0 stale. One worker: 154 jobs in
+  1.72 h (about 40 s per job on a T4).
+- E4_crosssite showed 990 "running": workers had reached E4 before the B/C/D data existed, the jobs failed, and their
+  claim files remained (they would expire after 3 h). Decision: delete the E4 claim folder, check pair counts at
+  B/C/D, then run E4 in all accounts.
+- DRIAMS-B/C/D (2018 only), streamed on a CPU runtime:
+
+  | Site | Archive | Stream time | Spectra with labels | Notes |
+  |---|---|---|---|---|
+  | DRIAMS-B | 3.69 GB | 4.3 min | 2 386 | 3 511 label rows had no spectrum in the archive |
+  | DRIAMS-C | 12.43 GB | 15.2 min | 4 696 | 41 spectra had no label row |
+  | DRIAMS-D | 42.56 GB | 47.6 min | 10 436 | perfect match |
+
+  No acquisition dates at any site. Whole compact copy (A-D): 1.5 GB. DRIAMS-B is small and 60% of its label
+  rows lack a spectrum: report its cross-site results with that caveat.
 
 ## 2026-10-04 · Workers started; parallel-safety note
 
