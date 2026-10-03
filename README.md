@@ -26,7 +26,8 @@ All settings are in `amr_al/config.py`.
 ```
 amr_al/          package: data download, splits, models, strategies, job runner, analysis
 notebooks/       00 setup and GPU test · 01 data · 02 audit and tuning · 03 worker · 04 results
-docs/            Colab setup guide (PDF)
+docs/            research plan, literature check, study guide, Colab setup guide (PDF)
+RESEARCH_LOG.md  dated log of every run, observation and decision
 make_notebooks.py  regenerates notebooks/
 ```
 
