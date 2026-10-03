@@ -47,7 +47,11 @@ this log records what they showed and every decision taken because of them.
 - `has_acquisition_date` = False for every year: the label files carry no dates, so the 2017 pool is split into
   4 fixed pseudo-random batches (hash of the isolate code), not calendar quarters. Time shift between the
   training years, the pool year and the test year is unaffected; only the order inside 2017 is not real.
-  To state in the paper. Checking whether any other column holds a date before deciding.
+  To state in the paper. Checked: the only non-antibiotic columns are `code`, `species`, `laboratory_species`
+  (no date anywhere) → decision: keep the 4 hash pseudo-batches for the 2017 pool.
+- Isolate codes end in `_MALDI1` (e.g. `6a690054-..._MALDI1`): possibly several spectra (technical replicates)
+  per isolate. If so, replicates of one isolate could fall on both sides of the train/validation split and the
+  tuning folds. Checking replicate counts next.
 - 2015 is small (3 198 spectra); training data is mostly 2016.
 
 ## 2026-10-03 · Dryad access and archive layout
