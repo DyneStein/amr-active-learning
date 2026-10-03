@@ -21,7 +21,7 @@ this log records what they showed and every decision taken because of them.
 - [x] Code: `amr_al` package, notebooks 00-04, self-test 17/17 on synthetic data (27 Sep 2026)
 - [x] Notebook 00 in every Colab account: self-test 17/17 in all (3 Oct 2026); T4 speed lines still to record
 - [x] Dryad API account; token works (200) (3 Oct 2026)
-- [ ] Notebook 01 downloads DRIAMS-A
+- [x] Notebook 01: DRIAMS-A downloaded and verified (3 Oct 2026)
 - [ ] Notebook 02: audit tables, tuned settings, premise check (gap per pair)
 - [ ] Supervisor check-in on the premise result
 - [ ] Notebook 03 workers: E1 -> E3 -> E2
@@ -30,6 +30,25 @@ this log records what they showed and every decision taken because of them.
 - [ ] Confirm target-journal impact factors on JCR
 
 ---
+
+## 2026-10-03 · DRIAMS-A downloaded
+
+- Streamed 86.16 GB in 100.8 min (about 13-14 MB/s) on a CPU runtime; 111 257 binned spectra kept, 0 unreadable.
+- Per year (spectra with labels; 0 label rows without a spectrum and 0 spectra without a label row in every year):
+
+  | Year | Spectra | meta columns |
+  |---|---|---|
+  | 2015 | 3 198 | 81 |
+  | 2016 | 34 868 | 90 |
+  | 2017 | 43 122 | 90 |
+  | 2018 | 30 069 | 87 |
+
+- All arrays finite, shape (n, 6000). Compact copy on Drive: 1.3 GB.
+- `has_acquisition_date` = False for every year: the label files carry no dates, so the 2017 pool is split into
+  4 fixed pseudo-random batches (hash of the isolate code), not calendar quarters. Time shift between the
+  training years, the pool year and the test year is unaffected; only the order inside 2017 is not real.
+  To state in the paper. Checking whether any other column holds a date before deciding.
+- 2015 is small (3 198 spectra); training data is mostly 2016.
 
 ## 2026-10-03 · Dryad access and archive layout
 
