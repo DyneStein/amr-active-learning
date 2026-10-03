@@ -10,11 +10,15 @@ from . import config, paths
 
 
 def load(exp):
-    rows = []
-    for f in glob.glob(os.path.join(paths.RESULTS, exp, "*.json")):
+    rows, seen = [], set()
+    for f in sorted(glob.glob(os.path.join(paths.RESULTS, exp, "*.json"))):
         with open(f) as fh:
             r = json.load(fh)
         j = r["job"]
+        jid = j.get("id") or f
+        if jid in seen:                     # same job finished by two workers (rare Drive sync race): count once
+            continue
+        seen.add(jid)
         for rec in r["metrics"]:
             rows.append(dict(exp=j["exp"], pair=j["pair"], site=j["site"], strategy=j["strategy"],
                              budget=str(j["budget"]), seed=j["seed"], final=rec["round"] == r["final"]["round"],
