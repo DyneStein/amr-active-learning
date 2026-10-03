@@ -19,7 +19,7 @@ this log records what they showed and every decision taken because of them.
 
 - [x] Plan and literature check (24 Sep 2026)
 - [x] Code: `amr_al` package, notebooks 00-04, self-test 17/17 on synthetic data (27 Sep 2026)
-- [ ] Notebook 00 in every Colab account (self-test + T4 speed)
+- [x] Notebook 00 in every Colab account: self-test 17/17 in all (3 Oct 2026); T4 speed lines still to record
 - [ ] Dryad API account; notebook 01 downloads DRIAMS-A
 - [ ] Notebook 02: audit tables, tuned settings, premise check (gap per pair)
 - [ ] Supervisor check-in on the premise result
@@ -29,6 +29,14 @@ this log records what they showed and every decision taken because of them.
 - [ ] Confirm target-journal impact factors on JCR
 
 ---
+
+## 2026-10-03 · Notebook 00 in all accounts
+
+- Self-test passed 17/17 in every Colab account.
+- All accounts were run with `ACCOUNT = "acc1"`, so `logs/hello_acc1.txt` only holds the last account's line.
+  This affects only that check file, not the experiments. For notebook 03 every account must use a
+  different `WORKER` name and `SHARD` number (claims are tied to the worker name).
+- To record: T4 speed (`XGBoost fit on cuda: ... s`) per account.
 
 ## 2026-10-03 · Log started, documents added
 
