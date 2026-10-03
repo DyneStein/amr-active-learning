@@ -32,6 +32,17 @@ this log records what they showed and every decision taken because of them.
 
 ---
 
+## 2026-10-04 · Workers started; parallel-safety note
+
+- All 8 workers started (acc1..acc8, SHARD 0..7, N_SHARDS 8, HOURS 11-12). EXPERIMENTS was left at None, so E4
+  jobs will fail quickly until DRIAMS-B/C/D are downloaded; their claims expire after 3 h and they rerun later.
+- Concurrency design: no locks are held, so no deadlock is possible (a worker skips a claimed job, it never
+  waits). Results are written atomically (temp file, then rename). Shards keep workers on separate jobs; overlap
+  is only possible at the end, when workers help each other, and Drive's cross-account sync delay can then let two
+  workers run the same job. Each job is deterministic, so both write the same numbers; `analysis.load` now counts
+  each job id once (commit a5905a2; self-test 17/17). `amr_al/analysis.py` must be re-uploaded to Drive before
+  notebook 04.
+
 ## 2026-10-03 · Worker plan
 
 - 8 Colab accounts run notebook 03 in parallel: WORKER acc1..acc8, SHARD 0..7, N_SHARDS = 8, HOURS = 3.5.
