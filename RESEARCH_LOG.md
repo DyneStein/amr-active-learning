@@ -32,6 +32,14 @@ this log records what they showed and every decision taken because of them.
 
 ---
 
+## 2026-10-03 · Worker plan
+
+- 8 Colab accounts run notebook 03 in parallel: WORKER acc1..acc8, SHARD 0..7, N_SHARDS = 8, HOURS = 3.5.
+- EXPERIMENTS = ["E1_temporal", "E3_routing", "E2_semisup"] (1 230 jobs) until DRIAMS-B/C/D are downloaded;
+  E4 (990 jobs) added afterwards.
+- Expected: about 1 min per job on a T4 → roughly 150 jobs per worker per 3.5 h session; the 1 230 core jobs in
+  about one round of sessions across 8 accounts.
+
 ## 2026-10-03 · Notebook 02: audit, tuning, premise check (T4)
 
 **Labelled isolates per pair and year (% resistant):**
