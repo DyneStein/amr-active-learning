@@ -22,6 +22,7 @@ this log records what they showed and every decision taken because of them.
 - [x] Notebook 00 in every Colab account: self-test 17/17 in all (3 Oct 2026); T4 speed lines still to record
 - [x] Dryad API account; token works (200) (3 Oct 2026)
 - [x] Notebook 01: DRIAMS-A downloaded and verified (3 Oct 2026)
+- [x] Checks before notebook 02: no date column (pseudo-batches); MALDI1/MALDI2 = instrument, almost no duplicates
 - [ ] Notebook 02: audit tables, tuned settings, premise check (gap per pair)
 - [ ] Supervisor check-in on the premise result
 - [ ] Notebook 03 workers: E1 -> E3 -> E2
@@ -50,8 +51,16 @@ this log records what they showed and every decision taken because of them.
   To state in the paper. Checked: the only non-antibiotic columns are `code`, `species`, `laboratory_species`
   (no date anywhere) → decision: keep the 4 hash pseudo-batches for the 2017 pool.
 - Isolate codes end in `_MALDI1` (e.g. `6a690054-..._MALDI1`): possibly several spectra (technical replicates)
-  per isolate. If so, replicates of one isolate could fall on both sides of the train/validation split and the
-  tuning folds. Checking replicate counts next.
+  per isolate. Checked (spectra / distinct isolates / suffix counts):
+  2016: 34 868 / 34 868 / no suffix · 2017: 43 122 / 43 110 / MALDI1 39 781, MALDI2 3 341 ·
+  2018: 30 069 / 30 006 / MALDI1 12 670, MALDI2 17 399.
+- Reading: the suffix marks the MALDI-TOF instrument, not repeated measurements. Only 12 (2017) and 63 (2018)
+  isolates were measured twice, and none in the training years, so the train/validation split and tuning folds
+  are unaffected. Decision: no code change.
+- Finding for the paper: a second instrument (MALDI2) appears in 2017 (8%) and measures most isolates in 2018
+  (58%). Weis et al. (2022) attribute part of DRIAMS's temporal decay to instrument changes. Planned extra
+  analysis: test metrics split by instrument (MALDI1 vs MALDI2) in 2018, and the share of MALDI2 spectra each
+  strategy buys from the 2017 pool.
 - 2015 is small (3 198 spectra); training data is mostly 2016.
 
 ## 2026-10-03 · Dryad access and archive layout
