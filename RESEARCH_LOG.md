@@ -23,14 +23,54 @@ this log records what they showed and every decision taken because of them.
 - [x] Dryad API account; token works (200) (3 Oct 2026)
 - [x] Notebook 01: DRIAMS-A downloaded and verified (3 Oct 2026)
 - [x] Checks before notebook 02: no date column (pseudo-batches); MALDI1/MALDI2 = instrument, almost no duplicates
-- [ ] Notebook 02: audit tables, tuned settings, premise check (gap per pair)
-- [ ] Supervisor check-in on the premise result
+- [x] Notebook 02: audit tables, tuned settings, premise check (gap per pair) (3 Oct 2026)
+- [ ] Supervisor check-in on the premise result (premise holds: gaps 0.042-0.057)
 - [ ] Notebook 03 workers: E1 -> E3 -> E2
 - [ ] Notebook 01 again with DRIAMS-B/C/D, then E4
 - [ ] Formal Scopus / PubMed novelty search (queries in `docs/Literature_Check.pdf`)
 - [ ] Confirm target-journal impact factors on JCR
 
 ---
+
+## 2026-10-03 · Notebook 02: audit, tuning, premise check (T4)
+
+**Labelled isolates per pair and year (% resistant):**
+
+| Pair | 2015 | 2016 | 2017 (pool) | 2018 (test) |
+|---|---|---|---|---|
+| ecoli_cro | 97 (27.8%) | 1 384 (24.4%) | 2 094 (22.2%) | 1 386 (18.5%) |
+| kpneu_cro | 47 (23.4%) | 765 (19.5%) | 1 273 (14.2%) | 775 (13.9%) |
+| saur_oxa | 74 (21.6%) | 1 067 (24.6%) | 1 445 (18.8%) | 1 204 (14.6%) |
+
+The share of resistant isolates falls every year for all three pairs (label shift as well as spectral drift).
+For K. pneumoniae the largest budget (800) is 63% of the 2017 pool, so B = 800 is close to "full".
+
+**Tuning** (3-fold CV AUROC on 2015-16 only, 16 combinations, 8-36 s each on T4):
+
+| Pair | colsample_bytree | learning_rate | max_depth | n_estimators | CV AUROC (sd) |
+|---|---|---|---|---|---|
+| ecoli_cro | 0.3 | 0.05 | 6 | 300 | 0.887 (0.024) |
+| kpneu_cro | 0.3 | 0.05 | 4 | 600 | 0.726 (0.025) |
+| saur_oxa | 0.1 | 0.05 | 4 | 600 | 0.892 (0.016) |
+
+Differences between the top settings are well inside one standard deviation; learning rate 0.05 wins everywhere.
+
+**Premise check** (seed 0; AUROC):
+
+| Pair | in-period CV 2015-16 | 2018, no retraining | 2018, retrained with all 2017 | gap retraining can close |
+|---|---|---|---|---|
+| ecoli_cro | 0.881 | 0.824 | 0.872 | +0.048 |
+| kpneu_cro | 0.751 | 0.733 | 0.791 | +0.057 |
+| saur_oxa | 0.896 | 0.799 | 0.841 | +0.042 |
+
+- All three gaps are above the 0.02 cut-off → **premise holds; E1 goes ahead.**
+- Decay 2015-16 → 2018 without retraining: −0.057 (E. coli), −0.018 (K. pneumoniae, weak model to begin with),
+  −0.097 (S. aureus). AUPRC drops more (e.g. E. coli 0.75 on 2017 batch 1 → 0.64 on 2018).
+- The 2017 pseudo-batches differ by up to ±0.04 AUROC from one another: noise from random batching, not time.
+- Observation: the threshold chosen for 90% sensitivity on 2015-16 validation gives VME 0.18-0.34 on 2018
+  (sensitivity 66-82%), i.e. the decision threshold drifts too. With full retraining the S. aureus VME even rises
+  (0.20 → 0.34) while ME falls (0.44 → 0.17). AUROC/AUPRC are unaffected (threshold-free). To discuss: re-choose
+  the threshold on recent labelled data (e.g. bought labels) as an ablation.
 
 ## 2026-10-03 · DRIAMS-A downloaded
 
