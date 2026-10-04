@@ -12,8 +12,8 @@ this log records what they showed and every decision taken because of them.
 | E1_temporal | RQ1, RQ2 | 660 | 660 | done 4 Oct 2026 |
 | E3_routing | RQ5 | 180 | 180 | done 4 Oct 2026 |
 | E2_semisup | RQ3 | 390 | 390 | done 4 Oct 2026 |
-| E4_crosssite | RQ4 | 880 | 878 | 2 left (failed or interrupted claims); S. aureus at D dropped (no labels) |
-| **Total** | | **2 110** | **2 108** | |
+| E4_crosssite | RQ4 | 880 | 880 | done 4 Oct 2026; S. aureus at D dropped (no labels) |
+| **Total** | | **2 110** | **2 110** | all done 4 Oct 2026 |
 
 ## Checklist
 
@@ -32,6 +32,12 @@ this log records what they showed and every decision taken because of them.
 - [ ] Confirm target-journal impact factors on JCR
 
 ---
+
+## 2026-10-04 · All experiments done (2 110 / 2 110)
+
+- Check run (worker acc9, T4, updated config/runner/analysis on Drive): E4 already 880/880 at start; the last
+  2 jobs had been finished by an earlier worker. Worker found 0 jobs to do. All four experiments complete.
+- Next: notebook 04 (analysis), then write-up.
 
 ## 2026-10-04 · E4 run: 878 / 880 done
 
