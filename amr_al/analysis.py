@@ -10,13 +10,15 @@ from . import config, paths
 
 
 def load(exp):
+    from . import runner
+    valid = {j["id"] for j in runner.all_jobs([exp])}   # drops results of skipped jobs (e.g. saur_oxa at DRIAMS-D)
     rows, seen = [], set()
     for f in sorted(glob.glob(os.path.join(paths.RESULTS, exp, "*.json"))):
         with open(f) as fh:
             r = json.load(fh)
         j = r["job"]
         jid = j.get("id") or f
-        if jid in seen:                     # same job finished by two workers (rare Drive sync race): count once
+        if jid in seen or jid not in valid:  # duplicate (rare Drive sync race) or no longer part of the design
             continue
         seen.add(jid)
         for rec in r["metrics"]:

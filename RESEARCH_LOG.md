@@ -12,8 +12,8 @@ this log records what they showed and every decision taken because of them.
 | E1_temporal | RQ1, RQ2 | 660 | 660 | done 4 Oct 2026 |
 | E3_routing | RQ5 | 180 | 180 | done 4 Oct 2026 |
 | E2_semisup | RQ3 | 390 | 390 | done 4 Oct 2026 |
-| E4_crosssite | RQ4 | 880 | 0 | S. aureus at D dropped (no labels); to run |
-| **Total** | | **2 110** | **1 230** | |
+| E4_crosssite | RQ4 | 880 | 878 | 2 left (failed or interrupted claims); S. aureus at D dropped (no labels) |
+| **Total** | | **2 110** | **2 108** | |
 
 ## Checklist
 
@@ -32,6 +32,16 @@ this log records what they showed and every decision taken because of them.
 - [ ] Confirm target-journal impact factors on JCR
 
 ---
+
+## 2026-10-04 · E4 run: 878 / 880 done
+
+- 8 workers ran E4. Status in the one runtime with the new config: 878 done of 880, 2 claims still "running".
+- Most runtimes still had the old config (total 990), so they also ran S. aureus-oxacillin at DRIAMS-D.
+  Hybrid/diversity jobs there failed (PCA on 0 rows); other strategies wrote results that are meaningless (no labels).
+- A failed job keeps its claim, so it shows as "running" until the 3-hour TTL, then as "stale" and is retried.
+- Fix: `analysis.load` now keeps only results whose job id is in the current design (`runner.all_jobs`), so
+  the skipped S. aureus-D results are ignored. Self-test 17/17.
+- Next: one worker with the updated code to finish the last 2 jobs, then status must show E4 880/880.
 
 ## 2026-10-04 · Target-site audit for E4
 
