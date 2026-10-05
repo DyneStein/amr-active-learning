@@ -37,10 +37,14 @@ this log records what they showed and every decision taken because of them.
 
 ## 2026-10-05 · Conference paper draft
 
-- `paper/AMR_Paper_Draft.pdf` (8 pp, two-column; copy at `Baterial-AMR/AMR_Paper_Draft.pdf`). Sources in `paper/`
-  (paper.py text/layout, pfig.py data figures, pdiag.py schematics, paper_data.py result cache); figures as SVG in
-  `paper/fig/`. Re-render: python paper_data.py && python pfig.py && python pdiag.py && python paper.py, then Chrome
-  headless --print-to-pdf.
+- `paper/AMR_Paper_Draft.pdf` (14 pp; copy at `Baterial-AMR/AMR_Paper_Draft.pdf`). Single column, Computer Modern,
+  booktabs tables, centred page numbers, 11 figures and 4 tables, set to match the format of the submitted
+  Risk-Aware Active Learning paper. No LaTeX on this machine, so the look is reproduced in the HTML -> Chrome build;
+  see `paper/README.md` for the four commands. Sources in `paper/` (paper.py, pfig.py, pdiag.py, paper_data.py,
+  stamp.py, fonts/, fig/).
+- First attempt was two-column with coloured headings, callout boxes and reference tier badges; rejected as not
+  looking like a submitted paper. Figures were restyled to a muted print palette (checked for colour-blind
+  separation), schematics redrawn as monochrome line art, and all decorative chrome removed.
 - Framing: label efficiency is a negative result; the positive results are (a) deployment-time error counts and
   (b) calibration decay under drift. Both error types (VME and ME) reported everywhere, after the D1_dev lesson.
 - Honest points kept in the draft: uncertainty sampling lowers VMEs in all three pairs but raises MEs for
