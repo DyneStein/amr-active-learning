@@ -35,6 +35,20 @@ this log records what they showed and every decision taken because of them.
 
 ---
 
+## 2026-10-05 · Conference paper draft
+
+- `paper/AMR_Paper_Draft.pdf` (8 pp, two-column; copy at `Baterial-AMR/AMR_Paper_Draft.pdf`). Sources in `paper/`
+  (paper.py text/layout, pfig.py data figures, pdiag.py schematics, paper_data.py result cache); figures as SVG in
+  `paper/fig/`. Re-render: python paper_data.py && python pfig.py && python pdiag.py && python paper.py, then Chrome
+  headless --print-to-pdf.
+- Framing: label efficiency is a negative result; the positive results are (a) deployment-time error counts and
+  (b) calibration decay under drift. Both error types (VME and ME) reported everywhere, after the D1_dev lesson.
+- Honest points kept in the draft: uncertainty sampling lowers VMEs in all three pairs but raises MEs for
+  K. pneumoniae (+54%) and is flat for S. aureus; the pre-registered D1 rule picked a combination that only traded
+  one error for the other, reported as a failure of our rule; E2 reported as invalid by design flaw.
+- Open before submission: author affiliation placeholder in the title block; formal Scopus/PubMed novelty search;
+  supervisor review; venue choice; statement on code/data release.
+
 ## 2026-10-05 · E5 and D1_dev results; combination search stopped, back to the original study
 
 - D1_dev (510/510; 110 jobs ran twice on different machines with identical results -> fully reproducible).
