@@ -13,9 +13,9 @@ this log records what they showed and every decision taken because of them.
 | E3_routing | RQ5 | 180 | 180 | done 4 Oct 2026 |
 | E2_semisup | RQ3 | 390 | 390 | done 4 Oct 2026 |
 | E4_crosssite | RQ4 | 880 | 880 | done 4 Oct 2026; S. aureus at D dropped (no labels) |
-| E5_recal | threshold ablation | 240 | 0 | added 5 Oct 2026; running |
-| D1_dev | combination search (dev split) | 510 | 0 | added 5 Oct 2026; to run |
-| **Total** | | **2 860** | **2 110** | E1-E4 done 4 Oct 2026 |
+| E5_recal | threshold ablation | 240 | 239 | 1 job missing from download (kpneu random b100 s3) |
+| D1_dev | combination search (dev split) | 510 | 510 | done 5 Oct 2026; search stopped (see log) |
+| **Total** | | **2 860** | **2 859** | |
 
 ## Checklist
 
@@ -34,6 +34,25 @@ this log records what they showed and every decision taken because of them.
 - [ ] Confirm target-journal impact factors on JCR
 
 ---
+
+## 2026-10-05 · E5 and D1_dev results; combination search stopped, back to the original study
+
+- D1_dev (510/510; 110 jobs ran twice on different machines with identical results -> fully reproducible).
+  Pre-registered rule winner: D14 (VME-risk 50% + random 50% + adaptive calibration), then D07. BUT the rule counted
+  only missed resistances: D14 gets them down by calling ~2/3 of susceptible isolates resistant (major errors among
+  untested isolates x1.95). All re-calibrating combinations trade major errors for very major errors; none improves
+  the trade-off. AUROC is flat across all 16 combinations (within +-0.005 of random on average).
+  Only uncertainty selection (D02, and D05 = half uncertainty + half random) lowers BOTH error types among untested
+  isolates (total -15% / -9% vs random, p < 0.01). Recorded as exploratory; no 2018 confirmation run.
+- Decision (user, 5 Oct): stop the combination search and stay with the original research questions.
+- E5 (239/240) vs E1, 2018 test, paired by seed: re-calibrating on 25% held-out new labels raises sensitivity toward
+  the 90% target (mean E. coli 0.82 -> 0.88, K. pneumoniae 0.64 -> 0.77, S. aureus 0.72 -> 0.79; still short because
+  2018 drifts again) but raises the major-error rate (0.37 -> 0.52, 0.27 -> 0.49, 0.26 -> 0.39) and lowers balanced
+  accuracy; AUROC slightly lower (fewer training labels). Holm-significant: sensitivity 9/24, major errors 11/24 cells.
+  Reading: the old threshold silently drifted to a different operating point; restoring the promised sensitivity
+  shows its real cost with models of AUROC ~0.75-0.85.
+- Outputs: `Results/extra/` (dev_rank, dev_errors, e5).
+- Next: write-up of RQ1-RQ5 (RQ3 reported with the pseudo-label design flaw), supervisor meeting, formal novelty search.
 
 ## 2026-10-05 · Combination catalogues and PRE-REGISTERED decision rule for the development search
 
