@@ -33,6 +33,27 @@ this log records what they showed and every decision taken because of them.
 
 ---
 
+## 2026-10-05 · First look at the results (notebook 04 + extra tests)
+
+- Tables/figures/results downloaded to `Baterial-AMR/Results/` (not in this repo). Extra tests (operational VME vs random,
+  E4 tests) in `Results/extra/`.
+- E1 (RQ1-2): retraining helps (no retraining -> all 2017 labels: AUROC +0.044 / +0.046 / +0.051 for E. coli / K. pneumoniae /
+  S. aureus). No strategy beats random on 2018 AUROC after Holm correction (0 of 45 tests). Pure uncertainty is worse
+  (K. pneumoniae, 800 labels: -0.029, Holm p = 0.029). The primary endpoint (labels to close 95% of the gap) is not reached
+  within 800 labels by any strategy; random closes 66-77% of the gap at 800.
+- Operational safety (pre-specified secondary metric): resistant isolates NOT sent to the lab and called susceptible during
+  2017. Uncertainty sampling at 800 labels cuts these vs random: 49.8 -> 33.6, 19.4 -> 5.2, 18.8 -> 9.2 (all Holm p < 0.05).
+- E3 (RQ5): conformal routing = random on AUROC; uses fewer labels (routing_all 650 / 522 / 428) but leaves MORE missed
+  resistances than random at 800 (78 vs 50, 33 vs 19, 39 vs 19; Holm p < 0.01). Possible cause: conformal bounds calibrated
+  on 2015-16 data do not hold under drift (to check: coverage on 2017).
+- E2 (RQ3): pseudo-labels hurt. Pseudo-labels alone lower AUROC below no retraining; with labels, 2018 VME rises sharply at
+  small budgets (e.g. E. coli random+ssl, 100 labels: VME 0.60 vs 0.19). No significant AUROC gain.
+- E4 (RQ4): the DRIAMS-A model transfers poorly to some sites (K. pneumoniae at B: AUROC 0.48; C: 0.59); local labels fix
+  most of it with 25-100 isolates. No strategy differs from random (0 of 120 tests); sites are small (low power).
+- Caveat: VME at the fixed threshold is high everywhere (0.13-0.45); threshold recalibration is a needed ablation.
+- Next: discuss framing with supervisors (negative AL result + positive operational-safety result), check conformal coverage
+  and pseudo-label accuracy, then write-up.
+
 ## 2026-10-04 · All experiments done (2 110 / 2 110)
 
 - Check run (worker acc9, T4, updated config/runner/analysis on Drive): E4 already 880/880 at start; the last
