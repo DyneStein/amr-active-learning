@@ -28,6 +28,7 @@ def _small_experiments():
     E["E2_semisup"].update(budgets=[8], seeds=[0])
     E["E4_crosssite"].update(budgets=[5, 10], seeds=[0], sites=["DRIAMS-B"])
     E["E5_recal"].update(budgets=[8], seeds=[0])
+    E["D1_dev"].update(budgets=[8], seeds=[0])
     return E
 
 
@@ -96,6 +97,22 @@ def run(tmp=None, keep=False):
                [a["labels_total"] for a in straight["metrics"]] == [b["labels_total"] for b in resumed["metrics"]]
         check("resumed == uninterrupted", same)
         os.remove(runner._f("ckpt", job))
+        for code in ("D11", "D14", "D10"):          # combinations keep more state (random share, pseudo, adaptive levels)
+            cj = [j for j in runner.all_jobs(["D1_dev"]) if j["strategy"] == code and j["pair"] == "ecoli_cro"][0]
+            straight = runner.run_job(cj, log=lambda *_: None)
+            try:
+                os.remove(runner._f("ckpt", cj))
+            except OSError:
+                pass
+            try:
+                runner.run_job(cj, log=lambda *_: None, _stop_after=2)
+            except runner._SimulatedCrash:
+                pass
+            resumed = runner.run_job(cj, log=lambda *_: None)
+            check(f"combination {code}: resumed == uninterrupted",
+                  [a.get("auroc") for a in straight["metrics"]] == [b.get("auroc") for b in resumed["metrics"]]
+                  and [a.get("threshold") for a in straight["metrics"]] == [b.get("threshold") for b in resumed["metrics"]])
+            os.remove(runner._f("ckpt", cj))
 
         print("4. worker runs every job")
         runner.run_worker("selftest", hours=2, log_file=True)

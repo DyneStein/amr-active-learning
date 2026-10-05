@@ -13,8 +13,9 @@ this log records what they showed and every decision taken because of them.
 | E3_routing | RQ5 | 180 | 180 | done 4 Oct 2026 |
 | E2_semisup | RQ3 | 390 | 390 | done 4 Oct 2026 |
 | E4_crosssite | RQ4 | 880 | 880 | done 4 Oct 2026; S. aureus at D dropped (no labels) |
-| E5_recal | threshold ablation | 240 | 0 | added 5 Oct 2026; to run |
-| **Total** | | **2 350** | **2 110** | E1-E4 done 4 Oct 2026 |
+| E5_recal | threshold ablation | 240 | 0 | added 5 Oct 2026; running |
+| D1_dev | combination search (dev split) | 510 | 0 | added 5 Oct 2026; to run |
+| **Total** | | **2 860** | **2 110** | E1-E4 done 4 Oct 2026 |
 
 ## Checklist
 
@@ -33,6 +34,24 @@ this log records what they showed and every decision taken because of them.
 - [ ] Confirm target-journal impact factors on JCR
 
 ---
+
+## 2026-10-05 · Combination catalogues and PRE-REGISTERED decision rule for the development search
+
+- Catalogues AL-A..AL-E (`docs/AMR_AL_Catalogues.pdf`): 5 slots (selection S1-S9, budget split B1-B5, retraining
+  T1-T4, calibration C1-C5, unlabelled U0-U2); 2 430 combinations, 1 424 valid, 559 robust and affordable; analytic
+  ranking; literature check; 16 combinations (D01-D16) + bounds chosen for the development search.
+- Development split (2018 never used): train 2015-16, pool = 2017 arrival batches 1-2 (4 rounds), test = 2017
+  batches 3-4. Seeds 100-104, budgets 100 and 300, 3 pairs: 510 jobs (`D1_dev`).
+- Decision rule, fixed now before any development result:
+  1. Non-inferiority on AUROC: mean difference vs D01 (random) over the 6 pair x budget cells >= -0.005, and no
+     pair significantly worse (paired Wilcoxon over seeds, Holm p < 0.05).
+  2. Among those, rank by (a) missed resistances among untested isolates relative to D01 (mean ratio over cells) and
+     (b) calibration error |2017-test sensitivity - 0.90| (mean), with R-class conformal coverage >= 0.85 required.
+     Final rank = sum of the two ranks; ties go to the combination with fewer changed parts.
+  3. The top 2 combinations (plus the single-change steps between D01 and the winner, as an ablation chain) are run
+     once on the real split (2017 -> 2018, seeds 0-9, budgets 100/400/800) and compared with E1 and E5 by seed.
+- Code: `amr_al/combo.py` (combination engine), `data.dev_split`, config `COMBOS` and `D1_dev`; E1-E5 unchanged.
+  Self-test 22/22 (crash/resume identical for combinations D10, D11, D14).
 
 ## 2026-10-05 · Checks on threshold, conformal bounds and pseudo-labels; E5 added
 

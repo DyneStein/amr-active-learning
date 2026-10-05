@@ -138,6 +138,25 @@ def temporal_split(pair, seed, site="DRIAMS-A"):
                 X_emb_fit=tr["X"], fingerprint=_fp(po["code"], te["code"]))
 
 
+def dev_split(pair, seed, site="DRIAMS-A"):
+    """Development split for the combination search (never touches 2018).
+
+    Train/validation as in temporal_split; the 2017 isolates of arrival batches 1-2 form the pool
+    (re-divided into N_ROUNDS rounds), batches 3-4 form the test set.
+    """
+    species, ab = config.PAIRS[pair]
+    tr = load_pair(site, config.TRAIN_YEARS, species, ab)
+    po = load_pair(site, [config.POOL_YEAR], species, ab)
+    val = _stratified_split(tr["y"], config.VAL_FRACTION, seed)
+    batch, mode = assign_rounds(po["code"], po["date"], 4)
+    pool, test = np.isin(batch, [0, 1]), np.isin(batch, [2, 3])
+    rounds = np.random.default_rng(2017).permutation(int(pool.sum())) % config.N_ROUNDS
+    return dict(X_tr=tr["X"][~val], y_tr=tr["y"][~val], X_val=tr["X"][val], y_val=tr["y"][val],
+                X_pool=po["X"][pool], y_pool=po["y"][pool], round_pool=rounds, code_pool=po["code"][pool],
+                X_te=po["X"][test], y_te=po["y"][test], n_rounds=config.N_ROUNDS, rounds_mode="dev: " + mode,
+                X_emb_fit=tr["X"], fingerprint=_fp(po["code"][pool], po["code"][test]))
+
+
 def crosssite_split(pair, target_site, seed):
     species, ab = config.PAIRS[pair]
     src = load_pair(config.SOURCE_SITE, config.SOURCE_YEARS, species, ab)

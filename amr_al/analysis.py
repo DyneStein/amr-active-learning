@@ -89,12 +89,13 @@ def vs_random(df, metric="auroc"):
     rows = []
     for (pair, site, budget), g in f.groupby(["pair", "site", "budget"]):
         piv = g.pivot_table(index="seed", columns="strategy", values=metric)
-        if "random" not in piv.columns:
+        ref = "random" if "random" in piv.columns else "D01" if "D01" in piv.columns else None   # D01 = random combo
+        if ref is None:
             continue
         for s in piv.columns:
-            if s in ("random", "none", "full"):
+            if s in (ref, "none", "full"):
                 continue
-            d = (piv[s] - piv["random"]).dropna()
+            d = (piv[s] - piv[ref]).dropna()
             if len(d) < 5:
                 continue
             p = wilcoxon(d).pvalue if (d != 0).any() else 1.0

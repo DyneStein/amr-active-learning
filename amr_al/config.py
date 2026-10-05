@@ -89,11 +89,39 @@ EXPERIMENTS = {
     # to re-set the threshold and conformal bounds every round. Compared with the same E1 runs (paired by seed).
     "E5_recal": dict(setting="temporal", pairs=list(PAIRS), strategies=["random", "uncertainty"],
                      budgets=[100, 400, 800], seeds=SEEDS, include_bounds=True, recal=True),
+    # Combination search on the development split (pool = 2017 batches 1-2, test = 2017 batches 3-4; 2018 untouched).
+    # Codes: see COMBOS below and docs/AMR_AL_Catalogues.pdf. Winners are frozen in RESEARCH_LOG before any 2018 run.
+    "D1_dev": dict(setting="dev", pairs=list(PAIRS),
+                   strategies=["D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08",
+                               "D09", "D10", "D11", "D12", "D13", "D14", "D15", "D16"],
+                   budgets=[100, 300], seeds=[100, 101, 102, 103, 104], include_bounds=True),
 }
 RECAL_FRACTION = 0.25         # E5: share of bought labels used only for re-calibration
 RECAL_MIN_R = 10              # E5: re-calibrate on new labels alone once they hold this many resistant isolates
+PSEUDO_ALPHA = 0.05           # combinations: 95% prediction sets for conformal pseudo-labels
+
+# Combinations (catalogue AL-E shortlist). sel / mix / w_new / iw / cal / pseudo are explained in amr_al/combo.py.
+COMBO_DEFAULTS = dict(sel="random", mix=0.0, w_new=1.0, iw=False, cal="old", pseudo="none")
+COMBOS = {
+    "D01": dict(sel="random"),                                              # anchor = E1 random
+    "D02": dict(sel="uncertainty"),                                         # anchor = E1 uncertainty
+    "D03": dict(sel="random", cal="holdout"),                               # anchor = E5 random
+    "D04": dict(sel="vmerisk"),                                             # new selection rule alone
+    "D05": dict(sel="uncertainty", mix=0.5),                                # mixing alone
+    "D06": dict(sel="uncertainty", mix=0.5, cal="rand_preq"),               # core: mix + prequential re-calibration
+    "D07": dict(sel="vmerisk", mix=0.5, cal="rand_preq"),                   # core with VME-risk
+    "D08": dict(sel="uncertainty", mix=0.5, cal="rand_hold"),               # random share held out instead
+    "D09": dict(sel="uncertainty", mix=0.5, cal="rand_preq", w_new=3.0),    # + recency weight
+    "D10": dict(sel="uncertainty", mix=0.5, cal="rand_preq", iw=True),      # + importance weights
+    "D11": dict(sel="uncertainty", mix=0.5, cal="rand_preq", pseudo="conformal"),  # + certified pseudo-labels
+    "D12": dict(sel="vmerisk", mix=0.5, cal="rand_preq", w_new=3.0),        # VME-risk + recency
+    "D13": dict(sel="vmerisk", mix=0.1, cal="weighted"),                    # 90/10 + weighted conformal
+    "D14": dict(sel="vmerisk", mix=0.5, cal="aci"),                         # adaptive calibration
+    "D15": dict(sel="hybrid", mix=0.5, cal="rand_preq"),                    # hybrid core
+    "D16": dict(sel="novelty", mix=0.5, cal="rand_preq"),                   # drift-novelty core
+}
 # order in which workers pick up experiments (core paper first)
-PRIORITY = ["E1_temporal", "E3_routing", "E2_semisup", "E4_crosssite", "E5_recal"]
+PRIORITY = ["E1_temporal", "E3_routing", "E2_semisup", "E4_crosssite", "E5_recal", "D1_dev"]
 
 # ---------------------------------------------------------------- workers
 CLAIM_TTL_HOURS = 3.0         # a claimed-but-unfinished job becomes free again after this

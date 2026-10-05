@@ -114,8 +114,12 @@ class _SimulatedCrash(Exception):
 
 
 def run_job(j, log=print, _stop_after=None):
+    if j["strategy"] in config.COMBOS:
+        from . import combo
+        return combo.run(j, log=log, _stop_after=_stop_after)
     t0 = time.time()
     split = (data.temporal_split(j["pair"], j["seed"]) if j["setting"] == "temporal"
+             else data.dev_split(j["pair"], j["seed"]) if j["setting"] == "dev"
              else data.crosssite_split(j["pair"], j["site"], j["seed"]))
     X_tr, y_tr, X_val, y_val = split["X_tr"], split["y_tr"], split["X_val"], split["y_val"]
     X_pool, y_pool, rnd, X_te, y_te = split["X_pool"], split["y_pool"], split["round_pool"], split["X_te"], split["y_te"]
