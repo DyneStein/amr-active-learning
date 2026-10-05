@@ -176,7 +176,7 @@ def report(exp):
         print(f"{exp}: no results yet")
         return {}
     n_own = int(df["final"].sum())
-    if config.EXPERIMENTS[exp]["setting"] == "temporal" and exp != BASELINE_EXP:
+    if config.EXPERIMENTS[exp]["setting"] == "temporal" and exp != BASELINE_EXP and not config.EXPERIMENTS[exp].get("recal"):
         base = load(BASELINE_EXP)
         if not base.empty:
             base = base[base.strategy.isin(["none", "full", "random", "uncertainty", "hybrid"])

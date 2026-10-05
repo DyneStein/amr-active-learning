@@ -84,9 +84,16 @@ EXPERIMENTS = {
                          include_bounds=True, sites=TARGET_SITES,
                          # DRIAMS-D has no labelled S. aureus-oxacillin isolates (audit, 4 Oct 2026)
                          skip=[("saur_oxa", "DRIAMS-D")]),
+    # Ablation after the first results (5 Oct 2026): the 2015-16 threshold and conformal bounds did not hold on
+    # 2017-18. Here a quarter of the bought labels is kept out of training and used, with the validation set,
+    # to re-set the threshold and conformal bounds every round. Compared with the same E1 runs (paired by seed).
+    "E5_recal": dict(setting="temporal", pairs=list(PAIRS), strategies=["random", "uncertainty"],
+                     budgets=[100, 400, 800], seeds=SEEDS, include_bounds=True, recal=True),
 }
+RECAL_FRACTION = 0.25         # E5: share of bought labels used only for re-calibration
+RECAL_MIN_R = 10              # E5: re-calibrate on new labels alone once they hold this many resistant isolates
 # order in which workers pick up experiments (core paper first)
-PRIORITY = ["E1_temporal", "E3_routing", "E2_semisup", "E4_crosssite"]
+PRIORITY = ["E1_temporal", "E3_routing", "E2_semisup", "E4_crosssite", "E5_recal"]
 
 # ---------------------------------------------------------------- workers
 CLAIM_TTL_HOURS = 3.0         # a claimed-but-unfinished job becomes free again after this

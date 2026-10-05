@@ -127,14 +127,24 @@ def run_job(j, log=print, _stop_after=None):
         pca = _embedding(j, split)
         E_pool, E_tr = pca.transform(X_pool), pca.transform(X_tr)
 
+    recal = config.EXPERIMENTS.get(j["exp"], {}).get("recal", False)
+    # E5: a fixed, seed-dependent quarter of the pool is "calibration only" if bought (same for every strategy)
+    cal_mask = (np.random.default_rng([j["seed"], 7]).random(len(y_pool)) < config.RECAL_FRACTION) if recal else None
+
     def train(acq, ps_idx, ps_y):
+        cal = np.zeros(0, int)
+        if recal:
+            acq, cal = acq[~cal_mask[acq]], acq[cal_mask[acq]]
         X = np.concatenate([X_tr, X_pool[acq], X_pool[ps_idx]])
         y = np.concatenate([y_tr, y_pool[acq], ps_y]).astype(int)
         w = np.concatenate([np.ones(len(y_tr)), np.full(len(acq), new_w), np.full(len(ps_idx), config.SSL_WEIGHT)])
         m = models.make(j["pair"], j["seed"]).fit(X, y, w)
-        pv = m.predict_proba(X_val)
-        t = metrics.threshold_for_sensitivity(y_val, pv, config.TARGET_SENSITIVITY)
-        return m, t, conformal.fit(pv, y_val, config.CONFORMAL_ALPHA)
+        pv, yv = m.predict_proba(X_val), y_val
+        if len(cal):                                   # E5: re-calibrate on recent held-out labels
+            pc, yc = m.predict_proba(X_pool[cal]), y_pool[cal]
+            pv, yv = (pc, yc) if yc.sum() >= config.RECAL_MIN_R else (np.concatenate([pv, pc]), np.concatenate([yv, yc]))
+        t = metrics.threshold_for_sensitivity(yv, pv, config.TARGET_SENSITIVITY)
+        return m, t, conformal.fit(pv, yv, config.CONFORMAL_ALPHA)
 
     ck = _read(_f("ckpt", j))
     if ck and ck.get("fingerprint") == split["fingerprint"]:

@@ -27,6 +27,7 @@ def _small_experiments():
     E["E3_routing"].update(budgets=[8], seeds=[0])
     E["E2_semisup"].update(budgets=[8], seeds=[0])
     E["E4_crosssite"].update(budgets=[5, 10], seeds=[0], sites=["DRIAMS-B"])
+    E["E5_recal"].update(budgets=[8], seeds=[0])
     return E
 
 

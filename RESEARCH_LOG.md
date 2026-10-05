@@ -13,7 +13,8 @@ this log records what they showed and every decision taken because of them.
 | E3_routing | RQ5 | 180 | 180 | done 4 Oct 2026 |
 | E2_semisup | RQ3 | 390 | 390 | done 4 Oct 2026 |
 | E4_crosssite | RQ4 | 880 | 880 | done 4 Oct 2026; S. aureus at D dropped (no labels) |
-| **Total** | | **2 110** | **2 110** | all done 4 Oct 2026 |
+| E5_recal | threshold ablation | 240 | 0 | added 5 Oct 2026; to run |
+| **Total** | | **2 350** | **2 110** | E1-E4 done 4 Oct 2026 |
 
 ## Checklist
 
@@ -32,6 +33,22 @@ this log records what they showed and every decision taken because of them.
 - [ ] Confirm target-journal impact factors on JCR
 
 ---
+
+## 2026-10-05 · Checks on threshold, conformal bounds and pseudo-labels; E5 added
+
+- Threshold: set on 2015-16 validation for 90% sensitivity to resistance. Realised on 2018 (model before retraining):
+  80% / 73% / 79% (E. coli / K. pneumoniae / S. aureus). The threshold does not survive the drift.
+- Conformal bounds (routing_all): at least 15.5% / 18.9% / 14.3% of 2017 resistant isolates got a confident "S" set,
+  above the 10% the method promises (lower bound; empty sets not counted). The guarantee breaks under drift, which
+  explains why routing missed more resistances than random.
+- Pseudo-labels: 65-95% of each round's isolates were pseudo-labelled; accuracy 87-93%, i.e. 60-240 wrong labels per job.
+  Design flaw found: the "susceptible" cut-off (p <= 0.05) lies ABOVE the decision threshold (mean 0.010-0.023), so
+  isolates the model itself calls resistant were pseudo-labelled susceptible. E2 as run is not a fair test of
+  pseudo-labelling; it must be reported as such or rerun with cut-offs tied to the threshold (decision pending).
+- Added E5_recal (240 jobs): 25% of bought labels (fixed per seed) kept out of training and used to re-set the threshold
+  and conformal bounds each round (new labels alone once they hold >= 10 resistant isolates, else with validation).
+  E1-E4 job ids and behaviour unchanged. Self-test 18/18. Outputs in `Results/extra/`.
+- Next: run E5 (notebook 03, EXPERIMENTS = ["E5_recal"]), decide on E2 rerun.
 
 ## 2026-10-05 · First look at the results (notebook 04 + extra tests)
 
