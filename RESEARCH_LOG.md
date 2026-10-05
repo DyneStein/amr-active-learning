@@ -42,6 +42,11 @@ this log records what they showed and every decision taken because of them.
   Risk-Aware Active Learning paper. No LaTeX on this machine, so the look is reproduced in the HTML -> Chrome build;
   see `paper/README.md` for the four commands. Sources in `paper/` (paper.py, pfig.py, pdiag.py, paper_data.py,
   stamp.py, fonts/, fig/).
+- Authors: Dyen Asif (first, corresponding, i240608@isb.nu.edu.pk), Hira Mastoor, Maryam Shahbaz; all listed under
+  Department of Computer Science, FAST NUCES Islamabad (supervisors' department to be confirmed).
+- House style: no em or en dashes anywhere, and no hyphenation at line breaks. Avoidable hyphenated compounds were
+  removed (preregistered, recalibration, tradeoff, cutoff, pseudo label, label efficiency, ...). Kept only where the
+  hyphen is part of a name or a standard term: MALDI-TOF, DRIAMS-A, k-center, k-means, p-values, Human-Computer.
 - First attempt was two-column with coloured headings, callout boxes and reference tier badges; rejected as not
   looking like a submitted paper. Figures were restyled to a muted print palette (checked for colour-blind
   separation), schematics redrawn as monochrome line art, and all decorative chrome removed.

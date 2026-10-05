@@ -80,10 +80,10 @@ def fig2():
     b = HEAD.format(w=W, h=H, k=K, g=G, f=F)
     rows = [("E. coli", "ceftriaxone", 1481, 2094, 1386, "213 / 916 / 1 994"),
             ("K. pneumoniae", "ceftriaxone", 812, 1273, 775, "152 / 366 / 2 151"),
-            ("S. aureus", "oxacillin", 1141, 1445, 1204, "346 / 738 / —")]
+            ("S. aureus", "oxacillin", 1141, 1445, 1204, "346 / 738 / none")]
     x0, w1, w2, w3, gap = 118, 86, 176, 86, 7
     xs = [x0, x0 + w1 + gap, x0 + w1 + w2 + 2 * gap]
-    for (lab, sub), x, w in zip([("2015–2016", "train / validation"), ("2017", "acquisition pool"),
+    for (lab, sub), x, w in zip([("2015 and 2016", "train / validation"), ("2017", "acquisition pool"),
                                  ("2018", "test year")], xs, [w1, w2, w3]):
         b += f'<rect x="{x}" y="10" width="{w}" height="19" fill="{SHADE}" stroke="{K}" stroke-width="0.8"/>'
         b += t(x + w / 2, 23.5, lab, 10.2, K)
@@ -101,7 +101,7 @@ def fig2():
             b += t(x + w / 2, y + 17, f"{val:,}".replace(",", " "), 9.6, K)
         y += 32
     b += f'<line x1="{x0}" y1="{y + 3}" x2="{xs[2] + w3}" y2="{y + 3}" stroke="{L}" stroke-width="0.6"/>'
-    b += t(112, y + 18, "Cross-site, 2018", 9.6, K, anchor="end")
+    b += t(112, y + 18, "Other hospitals, 2018", 9.6, K, anchor="end")
     b += t(x0, y + 18, "hospitals B / C / D, each acquiring local labels:", 9, G, anchor="start")
     yy = y + 31
     for name, ab, tr, po, te, cross in rows:

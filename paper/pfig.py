@@ -26,7 +26,7 @@ C = {"uncertainty": "#2a78d6", "diversity": "#eb6834", "hybrid": "#1baf7a", "rou
 VME, ME = "#8f2a2a", "#8a6a1a"            # dark status tones for print
 INK, INK2, MUT = "#1a1a1a", "#444444", "#777777"
 PAIR = {"ecoli_cro": "E. coli", "kpneu_cro": "K. pneumoniae", "saur_oxa": "S. aureus"}
-PAIRFULL = {"ecoli_cro": "E. coli – ceftriaxone", "kpneu_cro": "K. pneumoniae – ceftriaxone", "saur_oxa": "S. aureus – oxacillin"}
+PAIRFULL = {"ecoli_cro": "E. coli with ceftriaxone", "kpneu_cro": "K. pneumoniae with ceftriaxone", "saur_oxa": "S. aureus with oxacillin"}
 DASH = {"random": (4, 2), "none": (1.4, 1.6), "full": (5, 2)}
 
 A = pd.read_csv(S + "all_results.csv")
@@ -240,7 +240,7 @@ def f_calib():
     save(fig, "f7_calib")
 
 
-# ---------------------------------------------------------------- F8 recalibration trade-off
+# ---------------------------------------------------------------- F8 recalibration tradeoff
 def f_recal():
     e1, e5 = A[A.exp == "E1_temporal"], A[A.exp == "E5_recal"]
     m = e5.merge(e1, on=["pair", "strategy", "budget", "seed"], suffixes=("_5", "_1"))
@@ -259,10 +259,10 @@ def f_recal():
             ax.plot([x5], [y5], marker=mk, ms=4.6, color=C[s], mew=0, zorder=5)
     ax.axhline(0.90, color=VME, lw=1.2, ls=(0, (4, 2)), zorder=2)
     ax.text(0.655, 0.905, "target sensitivity 0.90", color=VME, fontsize=6.3, ha="right", va="bottom", fontweight="bold")
-    style(ax, xlab="major-error rate on 2018  (susceptible called resistant)", ylab="sensitivity to resistance on 2018")
-    h = [Line2D([], [], marker=mk, ms=4.6, lw=0, color=MUT, label=PAIR[p].split(" – ")[0]) for p, mk in zip(PAIR, ["o", "s", "^"])]
+    style(ax, xlab="major error rate on 2018  (susceptible called resistant)", ylab="sensitivity to resistance on 2018")
+    h = [Line2D([], [], marker=mk, ms=4.6, lw=0, color=MUT, label=PAIR[p]) for p, mk in zip(PAIR, ["o", "s", "^"])]
     h += [Line2D([], [], marker="o", ms=4.6, lw=0, color="white", mec=INK2, mew=1.1, label="old calibration (E1)"),
-          Line2D([], [], marker="o", ms=4.6, lw=0, color=INK2, label="re-calibrated (E5)"),
+          Line2D([], [], marker="o", ms=4.6, lw=0, color=INK2, label="recalibrated (E5)"),
           Line2D([], [], lw=1.6, color=C["random"], label="random selection"),
           Line2D([], [], lw=1.6, color=C["uncertainty"], label="uncertainty selection")]
     ax.legend(handles=h, frameon=False, loc="lower right", handlelength=1.0, labelspacing=0.3, borderpad=0.2)
@@ -270,7 +270,7 @@ def f_recal():
     save(fig, "f8_recal")
 
 
-# ---------------------------------------------------------------- F9 cross-site
+# ---------------------------------------------------------------- F9 transfer
 def f_site():
     e4 = A[A.exp == "E4_crosssite"]
     fig, axes = plt.subplots(1, 3, figsize=(5.25, 1.72), gridspec_kw=dict(wspace=0.30))
@@ -300,7 +300,7 @@ def f_site():
     save(fig, "f9_site")
 
 
-# ---------------------------------------------------------------- F10 error trade-off (D1_dev)
+# ---------------------------------------------------------------- F10 error tradeoff (D1_dev)
 def f_tradeoff():
     d = A[(A.exp == "D1_dev") & (~A.strategy.isin(["none", "full"]))]
     g = d.groupby("strategy")[["op_vme_rate", "op_me_rate", "auroc"]].mean()
@@ -327,13 +327,13 @@ def f_tradeoff():
     ax.text(0.215, 0.055, "better on both\nerror types", color=INK, fontsize=6.8, va="bottom")
     ax.annotate("", xy=(0.66, 0.062), xytext=(0.40, 0.175),
                 arrowprops=dict(arrowstyle="-|>", color="#bbbbbb", lw=1.4, connectionstyle="arc3,rad=0.25"))
-    ax.text(0.60, 0.145, "re-calibrating only\nslides along the\ntrade-off", color=MUT, fontsize=6.2, ha="center")
+    ax.text(0.60, 0.145, "recalibrating only\nslides along the\ntradeoff", color=MUT, fontsize=6.2, ha="center")
     ax.set_xlim(0.20, 0.78); ax.set_ylim(0.02, 0.26)
-    style(ax, xlab="major-error rate among untested isolates", ylab="missed-resistance rate among untested")
+    style(ax, xlab="major error rate among untested isolates", ylab="missed resistance rate among untested")
     save(fig, "f10_tradeoff")
 
 
-# ---------------------------------------------------------------- F11 pseudo-label flaw
+# ---------------------------------------------------------------- F11 pseudo label flaw
 def f_pseudo():
     r = RND2[(RND2["round"] > 0) & RND2.strategy.str.contains("ssl", na=False)]
     acc = r.groupby("pair").pseudo_acc.mean()
@@ -344,7 +344,7 @@ def f_pseudo():
 
     ax = axes[0]
     x = np.arange(3)
-    ax.bar(x - 0.19, [frac[p] for p in PAIR], 0.36, color=C["none"], zorder=3, label="pseudo-labelled share")
+    ax.bar(x - 0.19, [frac[p] for p in PAIR], 0.36, color=C["none"], zorder=3, label="pseudo labelled share")
     ax.bar(x + 0.19, [acc[p] for p in PAIR], 0.36, color=C["uncertainty"], zorder=3, label="accuracy of those labels")
     for i, p in enumerate(PAIR):
         ax.text(i - 0.19, frac[p] + .02, f"{frac[p]:.0%}", ha="center", fontsize=6.6, color=INK2)
@@ -363,10 +363,10 @@ def f_pseudo():
         ax.plot([t, t], [i - .25, i + .25], color=VME, lw=1.6, zorder=5)
         ax.plot([0.05, 0.05], [i - .25, i + .25], color=INK2, lw=1.3, zorder=5)
         ax.text(t - 0.0022, i + .30, f"t = {t:.3f}", fontsize=6.4, color=VME, ha="center", va="bottom")
-    ax.text(0.05, 2.62, "pseudo-\u201csusceptible\u201d cut-off  p \u2264 0.05", fontsize=6.6, color=INK2,
+    ax.text(0.05, 2.62, "pseudo \u201csusceptible\u201d cutoff  p \u2264 0.05", fontsize=6.6, color=INK2,
             ha="center", va="bottom")
     ax.annotate("", xy=(0.05, 2.56), xytext=(0.05, 2.34), arrowprops=dict(arrowstyle="->", color=INK2, lw=0.7))
-    ax.text(0.030, -0.95, "shaded: called resistant by the model (p \u2265 t),\nbut pseudo-labelled susceptible",
+    ax.text(0.030, -0.95, "shaded: called resistant by the model (p \u2265 t),\nbut pseudo labelled susceptible",
             fontsize=6.5, color=VME, ha="center", va="center")
     ax.set_yticks(range(3)); ax.set_yticklabels([short[p] for p in PAIR], fontsize=6.8)
     ax.set_xlim(0, 0.072); ax.set_ylim(-1.45, 3.05)
