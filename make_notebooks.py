@@ -263,7 +263,7 @@ display(seltrace.examples(log, 10).head(20))'''),
 df = analysis.load("E1_temporal")
 cost = analysis.cost_table(df)
 cost.to_csv(paths.p("tables", "E1_temporal_cost.csv"), index=False)
-display(cost[cost.budget.isin([400, 800])].round(3))'''),
+display(cost[cost.budget.astype(str).isin(["400", "800"])].round(3))'''),
     code('''
 from amr_al import share
 PAPER = "/content/drive/MyDrive/AMR_AL/paper/AMR_Paper_Draft.pdf"   # change if it sits elsewhere

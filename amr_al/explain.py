@@ -56,10 +56,25 @@ def profile(j, max_test=2000, log=print):
         rows = np.sort(rng.choice(rows, max_test, replace=False))
     import xgboost as xgb
     booster = m.m.get_booster()
-    booster.set_param({"device": "cpu"})                   # contributions are a CPU path
-    sv = booster.predict(xgb.DMatrix(np.asarray(X_te[rows], np.float32)), pred_contribs=True)
+    dm = xgb.DMatrix(np.asarray(X_te[rows], np.float32))
+    try:                                                   # contributions are a CPU path
+        booster.set_param({"device": "cpu"})
+        sv = booster.predict(dm, pred_contribs=True)
+    except Exception:                                      # older or GPU-pinned builds
+        sv = booster.predict(dm, pred_contribs=True)
     sv = np.asarray(sv, np.float64)[:, :config.N_BINS]     # last column is the bias term
+    X = np.asarray(X_te[rows], np.float64)
+    # Direction of a bin: does a HIGH intensity there push towards resistant? Averaging the
+    # signed value over all isolates instead would just follow the majority class, which is
+    # susceptible, and would label a resistance marker "susceptible".
+    hi = X > np.median(X, axis=0)
+    n_hi = hi.sum(0)
+    n_lo = len(X) - n_hi
+    with np.errstate(invalid="ignore", divide="ignore"):
+        mean_hi = np.where(n_hi > 0, (sv * hi).sum(0) / np.maximum(n_hi, 1), np.nan)
+        mean_lo = np.where(n_lo > 0, (sv * ~hi).sum(0) / np.maximum(n_lo, 1), np.nan)
     return dict(mean_abs=np.abs(sv).mean(0), mean_signed=sv.mean(0),
+                direction=np.nan_to_num(mean_hi - mean_lo),
                 auroc=res["final"].get("auroc"), vme=res["final"].get("vme"),
                 labels_total=res["final"].get("labels_total", 0), n_explained=int(len(rows)))
 
@@ -83,17 +98,19 @@ def run(pairs=None, seeds=(0, 1, 2, 3, 4), conditions=None, exp="E1_temporal",
             if key + "|abs" in store:
                 log(f"skip {key} (already done)")
                 continue
-            abs_acc, sgn_acc, info = [], [], []
+            abs_acc, sgn_acc, dir_acc, info = [], [], [], []
             for seed in seeds:
                 j = _job(exp, pair, strategy, budget, seed, site)
                 log(f"SHAP {key} seed {seed}")
                 pr = profile(j, log=lambda *_: None)
                 abs_acc.append(pr["mean_abs"])
                 sgn_acc.append(pr["mean_signed"])
+                dir_acc.append(pr["direction"])
                 info.append(dict(seed=seed, auroc=pr["auroc"], vme=pr["vme"],
                                  labels_total=pr["labels_total"]))
             store[key + "|abs"] = np.mean(abs_acc, 0)
             store[key + "|sgn"] = np.mean(sgn_acc, 0)
+            store[key + "|dir"] = np.mean(dir_acc, 0)
             store[key + "|abs_per_seed"] = np.array(abs_acc)
             meta[key] = dict(pair=pair, condition=label, strategy=strategy, budget=budget,
                              seeds=list(seeds), runs=info)
@@ -147,12 +164,12 @@ def top_table(out_name="shap_profiles.npz", k=TOP_K):
     rows = []
     for key, m in meta.items():
         v = z[key + "|abs"]
-        sg = z[key + "|sgn"]
+        dr = z[key + "|dir"] if key + "|dir" in z else z[key + "|sgn"]
         for rank, i in enumerate(top_bins(v, k), 1):
             rows.append(dict(pair=m["pair"], condition=m["condition"], rank=rank, bin=int(i),
                              mz_centre=float(mz_centre(i)), mz_range=bin_label(i),
                              mean_abs_shap=float(v[i]),
-                             pushes_towards="resistant" if sg[i] > 0 else "susceptible"))
+                             high_intensity_means="resistant" if dr[i] > 0 else "susceptible"))
     out = pd.DataFrame(rows)
     out.to_csv(os.path.join(paths.TABLES, "shap_top_bins.csv"), index=False)
     return out
