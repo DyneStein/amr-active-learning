@@ -247,7 +247,7 @@ import pandas as pd
 pd.set_option("display.width", 200)
 print("Do the models lean on the same parts of the spectrum?")
 display(agreement.round(3))
-print("\nMost important bins per model:")
+print("\\nMost important bins per model:")
 display(tops[tops["rank"] <= 8])'''),
     code('''
 from amr_al import seltrace
@@ -256,7 +256,7 @@ log = seltrace.run(pairs=list(config.PAIRS),
                    budgets=(400,), seeds=(0,))
 summary = seltrace.summarise(log)
 display(summary[summary.pair == "kpneu_cro"])
-print("\nThe isolates uncertainty sampling reached for first:")
+print("\\nThe isolates uncertainty sampling reached for first:")
 display(seltrace.examples(log, 10).head(20))'''),
     code('''
 # lab tests done against model quality, for the paper and for the supervisors
@@ -273,10 +273,26 @@ share.build("/content/drive/MyDrive/AMR_Final", spectra=True,
 ], gpu=True),
 }
 
+def check(book, name):
+    """Every code cell must be valid Python. A stray newline inside a string literal
+    (an unescaped \\n in this file) produced a broken cell once; this catches that."""
+    for i, c in enumerate(book["cells"]):
+        if c["cell_type"] != "code":
+            continue
+        src = "".join("pass" if l.lstrip().startswith(("!", "%")) else l   # IPython magics
+                      for l in c["source"])
+        try:
+            compile(src, f"{name} cell {i}", "exec")
+        except SyntaxError as e:
+            raise SystemExit(f"{name}, cell {i}: {e.msg} on line {e.lineno}\n    "
+                             + (e.text or "").strip())
+
+
 if __name__ == "__main__":
     out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "notebooks")
     os.makedirs(out_dir, exist_ok=True)
     for name, book in NOTEBOOKS.items():
+        check(book, name)
         with open(os.path.join(out_dir, name), "w") as f:
             json.dump(book, f, indent=1)
-        print("wrote", name)
+        print("wrote", name, "(cells compile)")

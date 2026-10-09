@@ -92,6 +92,10 @@ def cost_table(df):
     gain_captured    share of the AUROC gain of full retraining that was reached
                      (0 = no better than never retraining, 1 = as good as testing everything)
     """
+    cols = ["pair", "site", "strategy", "budget", "tests_done", "tests_if_all", "tests_saved_pct",
+            "auroc_none", "auroc", "auroc_full", "gain_captured", "vme", "op_vme_total", "seeds"]
+    if df.empty or "final" not in df.columns:
+        return pd.DataFrame(columns=cols)          # nothing has been run yet
     f = df[df["final"]]
     out = []
     for (pair, site), g in f.groupby(["pair", "site"]):
@@ -115,7 +119,8 @@ def cost_table(df):
                                                   & (df.strategy == strat) & (df.budget == budget)]
                                                ["op_vme_count"].sum() / len(gs), 1),
                             seeds=len(gs)))
-    return pd.DataFrame(out).sort_values(["pair", "strategy", "tests_done"])
+    return (pd.DataFrame(out).sort_values(["pair", "strategy", "tests_done"])
+            if out else pd.DataFrame(columns=cols))
 
 
 def vs_random(df, metric="auroc"):
