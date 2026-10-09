@@ -82,6 +82,42 @@ def labels_to_close_gap(df, frac=0.95, n_boot=1000, seed=0):
     return pd.DataFrame(out)
 
 
+def cost_table(df):
+    """What each budget buys, in lab tests and in model quality.
+
+    Reference points per pair: `none` (never retrain, 0 tests) and `full` (test every
+    arriving isolate). For every strategy and budget:
+
+    tests_saved_pct  share of the full-retraining lab tests that were not done
+    gain_captured    share of the AUROC gain of full retraining that was reached
+                     (0 = no better than never retraining, 1 = as good as testing everything)
+    """
+    f = df[df["final"]]
+    out = []
+    for (pair, site), g in f.groupby(["pair", "site"]):
+        ref = g.groupby("strategy")["auroc"].mean()
+        if not {"none", "full"} <= set(ref.index):
+            continue
+        lo, hi = ref["none"], ref["full"]
+        n_full = g[g.strategy == "full"]["labels_total"].mean()
+        for (strat, budget), gs in g.groupby(["strategy", "budget"]):
+            if strat in ("none", "full"):
+                continue
+            n = gs["labels_total"].mean()
+            auroc = gs["auroc"].mean()
+            out.append(dict(pair=pair, site=site, strategy=strat, budget=budget,
+                            tests_done=round(n), tests_if_all=round(n_full),
+                            tests_saved_pct=round(100 * (1 - n / n_full), 1) if n_full else np.nan,
+                            auroc_none=round(lo, 4), auroc=round(auroc, 4), auroc_full=round(hi, 4),
+                            gain_captured=round((auroc - lo) / (hi - lo), 3) if hi > lo else np.nan,
+                            vme=round(gs["vme"].mean(), 3),
+                            op_vme_total=round(df[(df.pair == pair) & (df.site == site)
+                                                  & (df.strategy == strat) & (df.budget == budget)]
+                                               ["op_vme_count"].sum() / len(gs), 1),
+                            seeds=len(gs)))
+    return pd.DataFrame(out).sort_values(["pair", "strategy", "tests_done"])
+
+
 def vs_random(df, metric="auroc"):
     """Paired (by seed) Wilcoxon test of each strategy against random at each budget, Holm-corrected per pair."""
     from scipy.stats import wilcoxon
@@ -189,6 +225,9 @@ def report(exp):
     if {"none", "full"} <= set(df.strategy):
         out["gap"] = labels_to_close_gap(df)
         out["gap"].to_csv(os.path.join(paths.TABLES, f"{exp}_labels_to_close_95pct_gap.csv"), index=False)
+    if {"none", "full"} <= set(df.strategy):
+        out["cost"] = cost_table(df)
+        out["cost"].to_csv(os.path.join(paths.TABLES, f"{exp}_cost.csv"), index=False)
     out["tests"] = vs_random(df)
     out["tests"].to_csv(os.path.join(paths.TABLES, f"{exp}_vs_random.csv"), index=False)
     out["figs"] = [plot_curves(df, exp, m) for m in ("auroc", "vme")]

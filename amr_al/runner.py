@@ -113,7 +113,10 @@ class _SimulatedCrash(Exception):
     pass
 
 
-def run_job(j, log=print, _stop_after=None):
+def run_job(j, log=print, _stop_after=None, trace=None, want_model=False):
+    """Run one job. `trace` (a list) collects one row per candidate isolate per round,
+    so the choices can be audited; `want_model` returns the final fitted model and threshold.
+    Both force a fresh run (checkpoints are ignored) so that every round is replayed."""
     if j["strategy"] in config.COMBOS:
         from . import combo
         return combo.run(j, log=log, _stop_after=_stop_after)
@@ -124,6 +127,7 @@ def run_job(j, log=print, _stop_after=None):
     X_tr, y_tr, X_val, y_val = split["X_tr"], split["y_tr"], split["X_val"], split["y_val"]
     X_pool, y_pool, rnd, X_te, y_te = split["X_pool"], split["y_pool"], split["round_pool"], split["X_te"], split["y_te"]
     R = split["n_rounds"]
+    code_pool = split["code_pool"]
     base, ssl = strategies.split_name(j["strategy"])
     new_w = config.TARGET_LABEL_WEIGHT if j["setting"] == "crosssite" else config.NEW_LABEL_WEIGHT
     need_emb = base in ("diversity", "hybrid")
@@ -150,7 +154,7 @@ def run_job(j, log=print, _stop_after=None):
         t = metrics.threshold_for_sensitivity(yv, pv, config.TARGET_SENSITIVITY)
         return m, t, conformal.fit(pv, yv, config.CONFORMAL_ALPHA)
 
-    ck = _read(_f("ckpt", j))
+    ck = None if (trace is not None or want_model) else _read(_f("ckpt", j))
     if ck and ck.get("fingerprint") == split["fingerprint"]:
         acq_rounds = [np.array(a, int) for a in ck["acquired"]]
         ps_rounds = [(np.array(a, int), np.array(b, int)) for a, b in ck["pseudo"]]
@@ -194,6 +198,22 @@ def run_job(j, log=print, _stop_after=None):
         untested = np.ones(len(cand), bool)
         untested[sel] = False
         op = metrics.error_counts(y_pool[cand][untested], p[untested], t)
+        if trace is not None:
+            order = np.argsort(np.abs(p - t), kind="stable")     # 0 = closest to the threshold
+            rank = np.empty(len(p), int)
+            rank[order] = np.arange(len(p))
+            picked = np.zeros(len(cand), bool)
+            picked[sel] = True
+            for i in range(len(cand)):
+                trace.append(dict(job=j["id"], exp=j["exp"], pair=j["pair"], site=j["site"],
+                                  strategy=j["strategy"], budget=j["budget"], seed=j["seed"],
+                                  round=r + 1, isolate=str(code_pool[cand[i]]),
+                                  p_resistant=round(float(p[i]), 6), threshold=round(float(t), 6),
+                                  distance_to_threshold=round(float(abs(p[i] - t)), 6),
+                                  uncertainty_rank=int(rank[i]),
+                                  sent_for_testing=bool(picked[i]),
+                                  true_label="R" if y_pool[cand[i]] == 1 else "S",
+                                  model_would_report="R" if p[i] >= t else "S"))
         ps_idx, ps_y = np.zeros(0, int), np.zeros(0, int)
         if ssl:
             hi, lo = untested & (p >= config.SSL_P_HIGH), untested & (p <= config.SSL_P_LOW)
@@ -212,14 +232,16 @@ def run_job(j, log=print, _stop_after=None):
                    op_untested=op["n"], op_vme_count=op["vme_count"], op_me_count=op["me_count"], op_R=op["n_R"],
                    **metrics.evaluate(y_te, m.predict_proba(X_te), t))
         recs.append(rec)
-        _write(_f("ckpt", j), dict(fingerprint=split["fingerprint"], acquired=acq_rounds,
-                                   pseudo=[(a, b) for a, b in ps_rounds], metrics=recs))
+        if trace is None and not want_model:
+            _write(_f("ckpt", j), dict(fingerprint=split["fingerprint"], acquired=acq_rounds,
+                                       pseudo=[(a, b) for a, b in ps_rounds], metrics=recs))
         if _stop_after is not None and r + 1 >= _stop_after:
             raise _SimulatedCrash(f"stopped after round {r + 1} (test)")
 
     import sklearn
     import xgboost
-    return dict(job={k: v for k, v in j.items()}, metrics=recs, final=recs[-1],
+    extra = dict(model_object=m, threshold=t, X_te=X_te, y_te=y_te) if want_model else {}
+    return dict(**extra, job={k: v for k, v in j.items()}, metrics=recs, final=recs[-1],
                 rounds_mode=split["rounds_mode"], fingerprint=split["fingerprint"],
                 sizes=dict(train=int(len(y_tr)), val=int(len(y_val)), pool=int(len(y_pool)), test=int(len(y_te)),
                            train_R=int(y_tr.sum()), pool_R=int(y_pool.sum()), test_R=int(y_te.sum())),

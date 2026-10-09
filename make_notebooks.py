@@ -218,6 +218,59 @@ for exp in config.PRIORITY:
         display(Image(f))'''),
     md("Tables are in `tables/` and figures in `figures/` of the shared folder."),
 ], gpu=False),
+
+"05_Explain_and_Share.ipynb": nb([
+    md("""
+# 05 · Feature attributions (SHAP), selection logs, and the folder for the supervisors
+
+Three things, in order. A T4 helps but is not required.
+
+1. **SHAP**: for every species/antibiotic pair, rebuild six models (never retrained, retrained on
+   everything, and random / uncertainty at 400 and 800 lab tests) and work out how much each part of
+   the spectrum each one relies on. This answers whether active learning and ordinary retraining end
+   up using the same peaks.
+2. **Selection log**: replay the runs and write down every single decision, one line per isolate per
+   round, so a reader can see exactly which isolates were sent for testing and whether they were
+   resistant.
+3. **Share folder**: collect the paper, the dataset, the logs, the results and the code in one place.
+
+Expect roughly 30 to 60 minutes for step 1 on a T4.
+"""),
+    code(SETUP),
+    code('''
+from amr_al import explain
+explain.run(seeds=(0, 1, 2, 3, 4))          # resumable: re-run it if the session drops'''),
+    code('''
+agreement = explain.compare()
+tops = explain.top_table()
+import pandas as pd
+pd.set_option("display.width", 200)
+print("Do the models lean on the same parts of the spectrum?")
+display(agreement.round(3))
+print("\nMost important bins per model:")
+display(tops[tops["rank"] <= 8])'''),
+    code('''
+from amr_al import seltrace
+log = seltrace.run(pairs=list(config.PAIRS),
+                   strategies=("random", "uncertainty", "diversity", "hybrid"),
+                   budgets=(400,), seeds=(0,))
+summary = seltrace.summarise(log)
+display(summary[summary.pair == "kpneu_cro"])
+print("\nThe isolates uncertainty sampling reached for first:")
+display(seltrace.examples(log, 10).head(20))'''),
+    code('''
+# lab tests done against model quality, for the paper and for the supervisors
+df = analysis.load("E1_temporal")
+cost = analysis.cost_table(df)
+cost.to_csv(paths.p("tables", "E1_temporal_cost.csv"), index=False)
+display(cost[cost.budget.isin([400, 800])].round(3))'''),
+    code('''
+from amr_al import share
+PAPER = "/content/drive/MyDrive/AMR_AL/paper/AMR_Paper_Draft.pdf"   # change if it sits elsewhere
+share.build("/content/drive/MyDrive/AMR_Final", spectra=True,
+            paper_pdf=PAPER if os.path.isfile(PAPER) else None)'''),
+    md("`AMR_Final` in My Drive is the folder to share. Right-click it in Drive to download it as a zip."),
+], gpu=True),
 }
 
 if __name__ == "__main__":

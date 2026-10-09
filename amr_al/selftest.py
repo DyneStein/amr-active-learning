@@ -125,7 +125,36 @@ def run(tmp=None, keep=False):
         check("full retraining labels every pool isolate",
               full["final"]["labels_total"] == full["sizes"]["pool"])
 
-        print("5. analysis")
+        print("5. selection log and SHAP")
+        from . import explain, seltrace
+        tjobs = seltrace.jobs_for(pairs=["ecoli_cro"], strategies=("random", "uncertainty"),
+                                  budgets=[config.EXPERIMENTS["E1_temporal"]["budgets"][-1]], seeds=(0,))
+        tdf = seltrace.trace_jobs(tjobs, log=lambda *_: None)
+        check("selection log has one row per isolate per round",
+              len(tdf) > 0 and tdf.groupby(["job", "round", "isolate"]).size().max() == 1)
+        bought = tdf[tdf.sent_for_testing]
+        # in every round where the budget did not cover all arrivals, uncertainty must buy
+        # exactly the isolates nearest the threshold, i.e. ranks 0 .. tested-1
+        exact, checked = True, 0
+        for (_, rnd), g in tdf[tdf.strategy == "uncertainty"].groupby(["job", "round"]):
+            got = g[g.sent_for_testing]
+            if len(got) < len(g):
+                checked += 1
+                exact &= sorted(got.uncertainty_rank) == list(range(len(got)))
+        check("uncertainty buys exactly the isolates nearest the threshold",
+              exact and checked > 0, f"({checked} partially-bought rounds)")
+        check("logged labels match the run",
+              all(bought[bought.job == j["id"]].shape[0] ==
+                  runner._read(runner._f("result", j))["final"]["labels_total"] for j in tjobs))
+        prof = explain.profile(explain._job("E1_temporal", "ecoli_cro", "full", "all", 0),
+                               log=lambda *_: None)
+        top = explain.top_bins(prof["mean_abs"], 10)
+        # synthetic.py plants the resistance marker at bins 2500 + 7*species_index + year drift
+        check("SHAP finds the planted resistance marker",
+              sum(1 for i in top if 2490 <= i <= 2530) >= 3,
+              f"({sum(1 for i in top if 2490 <= i <= 2530)}/10 bins in the marker window)")
+
+        print("6. analysis")
         for exp in config.PRIORITY:
             out = analysis.report(exp)
             check(f"report {exp}", "final" in out and len(out["final"]) > 0)

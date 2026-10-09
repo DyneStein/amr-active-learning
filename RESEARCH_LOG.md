@@ -35,6 +35,46 @@ this log records what they showed and every decision taken because of them.
 
 ---
 
+## 2026-10-09 · Review questions: SHAP, selection logs, cost comparison, share folder
+
+Four things were asked for in review. Three needed new code; one was already answerable from the
+finished runs.
+
+- `amr_al/explain.py`: exact TreeSHAP attributions (XGBoost `pred_contribs`, no extra package) for six
+  models per pair (never retrained, retrained on everything, random and uncertainty at 400 and 800
+  lab tests), averaged over 5 seeds. `compare()` reports how far the feature rankings agree
+  (top-20 overlap and Spearman over all 6000 bins); `top_table()` lists the leading bins with their
+  mass ranges and the direction they push.
+- `amr_al/seltrace.py`: replays runs and writes one line per isolate per round (isolate code,
+  probability, threshold, distance to the threshold, uncertainty rank, whether it was sent for
+  testing, its true label, and what the model would have reported). This is what answers "how do we
+  know uncertainty sampling reached for the resistant isolates".
+- `runner.run_job` gained `trace=` and `want_model=`, both of which ignore checkpoints so every round
+  is replayed. Behaviour with neither flag is unchanged.
+- `analysis.cost_table`: lab tests done against model quality, as the share of tests avoided and the
+  share of the full-retraining AUROC gain captured. Written by `report()` as `<exp>_cost.csv`.
+- `amr_al/share.py`: builds the folder for the supervisors (paper, isolate manifest, spectra subset,
+  logs, every result file, SHAP tables, code). DRIAMS is CC0, so the spectra subset can be shared.
+- Notebook `05_Explain_and_Share.ipynb` runs all of it.
+
+Self-test now 26/26. The two new checks are worth naming: uncertainty sampling must buy exactly the
+isolates of lowest uncertainty rank in any round where the budget did not cover every arrival, and
+SHAP must recover the resistance marker that `synthetic.py` plants (it found it in 6 of the top 10
+bins). An earlier version of the first check compared median distances and failed, because in the
+small self-test pool the budget exceeds the arrivals and every rule buys everything; the exact-rank
+property does not have that weakness.
+
+From the finished E1 runs, the cost picture (DRIAMS-A, 2017 pool, 2018 test):
+
+| pair | tests if all | random 400 | gain captured | random 800 | gain captured |
+|---|---|---|---|---|---|
+| E. coli / ceftriaxone | 2094 | 400 (81% saved) | 0.50 | 800 (62% saved) | 0.66 |
+| K. pneumoniae / ceftriaxone | 1273 | 400 (69% saved) | 0.77 | 800 (37% saved) | 0.66 |
+| S. aureus / oxacillin | 1445 | 400 (72% saved) | 0.60 | 800 (45% saved) | 0.77 |
+
+So a fifth to a third of the lab tests reaches half to three quarters of the benefit of testing every
+isolate. No selection rule beats random at this, which remains the main finding.
+
 ## 2026-10-05 · Conference paper draft
 
 - `paper/AMR_Paper_Draft.pdf` (14 pp; copy at `Baterial-AMR/AMR_Paper_Draft.pdf`). Single column, Computer Modern,
