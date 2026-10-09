@@ -27,9 +27,13 @@ def manifest(seed=0, site="DRIAMS-A"):
     not depend on the seed.
     """
     import pandas as pd
-    rows = []
+    have = data.available()
+    rows, skipped = [], []
     for pair in config.PAIRS:
         species, ab = config.PAIRS[pair]
+        if site not in have:
+            skipped.append(f"{pair} at {site}")
+            continue
         tr = data.load_pair(site, config.TRAIN_YEARS, species, ab)
         po = data.load_pair(site, [config.POOL_YEAR], species, ab)
         te = data.load_pair(site, [config.TEST_YEAR], species, ab)
@@ -47,11 +51,23 @@ def manifest(seed=0, site="DRIAMS-A"):
         for target in config.TARGET_SITES:
             if (pair, target) in [tuple(x) for x in config.EXPERIMENTS["E4_crosssite"].get("skip", [])]:
                 continue
-            tg = data.load_pair(target, [config.TARGET_YEAR], species, ab)
+            if config.TARGET_YEAR not in have.get(target, []):      # that site was never downloaded
+                skipped.append(f"{pair} at {target}")
+                continue
+            try:
+                tg = data.load_pair(target, [config.TARGET_YEAR], species, ab)
+            except KeyError:                                        # antibiotic absent at that site
+                skipped.append(f"{pair} at {target}")
+                continue
+            if not len(tg["y"]):
+                skipped.append(f"{pair} at {target} (no labelled isolates)")
+                continue
             held = data._stratified_split(tg["y"], config.TARGET_TEST_FRACTION, seed + 1000)
             for i in range(len(tg["y"])):
                 rows.append((pair, species, ab, target, tg["year"][i], tg["code"][i],
                              "cross_site_test" if held[i] else "cross_site_pool", None, int(tg["y"][i])))
+    if skipped:
+        print("manifest: not available, so left out: " + ", ".join(sorted(set(skipped))))
     df = pd.DataFrame(rows, columns=["pair", "species", "antibiotic", "site", "year", "isolate",
                                      "split", "arrival_batch", "label"])
     df["label_meaning"] = np.where(df.label == 1, "resistant or intermediate", "susceptible")
@@ -118,24 +134,28 @@ def build(dest, spectra=True, paper_pdf=None, zip_results=True, log=print):
     # 02 dataset (needs the DRIAMS copy; skipped where it is not mounted)
     ds = os.path.join(dest, "02_Dataset")
     open(os.path.join(ds, "README.md"), "w").write(_DATASET_README)
-    if os.path.isdir(data.data_root()):
-        log("building the isolate manifest ...")
-        m = manifest()
-        m.to_csv(os.path.join(ds, "isolate_manifest.csv"), index=False)
-        counts = m.groupby(["pair", "site", "split"]).agg(
-            isolates=("label", "size"), resistant=("label", "sum")).reset_index()
-        counts["resistant_pct"] = (100 * counts.resistant / counts.isolates).round(1)
-        counts.to_csv(os.path.join(ds, "isolate_counts.csv"), index=False)
-        log(f"  {len(m)} isolates listed")
-        done.append(f"02_Dataset: manifest of {len(m)} isolates")
-        if spectra:
-            log("writing the spectra subset ...")
-            size = spectra_subset(os.path.join(ds, "spectra_subset"))
-            log(f"  {size/1e6:.0f} MB")
-            done.append(f"02_Dataset: spectra subset, {size/1e6:.0f} MB")
-    else:
+    if not os.path.isdir(data.data_root()):
         missing.append("02_Dataset: manifest and spectra need the DRIAMS copy "
                        f"(looked in {data.data_root()}); run notebook 05 where the data is mounted")
+    else:
+        try:                                  # never lose the rest of the folder over this step
+            log("building the isolate manifest ...")
+            m = manifest()
+            m.to_csv(os.path.join(ds, "isolate_manifest.csv"), index=False)
+            counts = m.groupby(["pair", "site", "split"]).agg(
+                isolates=("label", "size"), resistant=("label", "sum")).reset_index()
+            counts["resistant_pct"] = (100 * counts.resistant / counts.isolates).round(1)
+            counts.to_csv(os.path.join(ds, "isolate_counts.csv"), index=False)
+            log(f"  {len(m)} isolates listed")
+            done.append(f"02_Dataset: manifest of {len(m)} isolates")
+            if spectra:
+                log("writing the spectra subset ...")
+                size = spectra_subset(os.path.join(ds, "spectra_subset"))
+                log(f"  {size/1e6:.0f} MB")
+                done.append(f"02_Dataset: spectra subset, {size/1e6:.0f} MB")
+        except Exception as e:
+            log(f"  dataset step failed: {e!r}")
+            missing.append(f"02_Dataset: failed with {type(e).__name__}: {e}")
 
     # 03 logs
     n_logs = _copytree(paths.LOGS, os.path.join(dest, "03_Logs"))
