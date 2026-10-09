@@ -8,6 +8,7 @@ used, the selection logs, every result file, the SHAP tables, and the code.
 """
 import os
 import shutil
+import time
 import zipfile
 
 import numpy as np
@@ -101,31 +102,46 @@ def spectra_subset(dst, site_years=None):
 
 
 def build(dest, spectra=True, paper_pdf=None, zip_results=True, log=print):
+    """Assemble the folder. Parts whose inputs are missing are skipped and listed
+    in STATUS.md, so this can be run before everything has been produced."""
     for d in LAYOUT:
         os.makedirs(os.path.join(dest, d), exist_ok=True)
+    done, missing = [], []
 
     # 01 paper
     if paper_pdf and os.path.isfile(paper_pdf):
         shutil.copy2(paper_pdf, os.path.join(dest, "01_Paper", os.path.basename(paper_pdf)))
+        done.append("01_Paper: " + os.path.basename(paper_pdf))
+    else:
+        missing.append("01_Paper: no paper PDF was passed to share.build(paper_pdf=...)")
 
-    # 02 dataset
+    # 02 dataset (needs the DRIAMS copy; skipped where it is not mounted)
     ds = os.path.join(dest, "02_Dataset")
-    log("building the isolate manifest ...")
-    m = manifest()
-    m.to_csv(os.path.join(ds, "isolate_manifest.csv"), index=False)
-    counts = m.groupby(["pair", "site", "split"]).agg(
-        isolates=("label", "size"), resistant=("label", "sum")).reset_index()
-    counts["resistant_pct"] = (100 * counts.resistant / counts.isolates).round(1)
-    counts.to_csv(os.path.join(ds, "isolate_counts.csv"), index=False)
-    log(f"  {len(m)} isolates listed")
-    if spectra:
-        log("writing the spectra subset ...")
-        size = spectra_subset(os.path.join(ds, "spectra_subset"))
-        log(f"  {size/1e6:.0f} MB")
     open(os.path.join(ds, "README.md"), "w").write(_DATASET_README)
+    if os.path.isdir(data.data_root()):
+        log("building the isolate manifest ...")
+        m = manifest()
+        m.to_csv(os.path.join(ds, "isolate_manifest.csv"), index=False)
+        counts = m.groupby(["pair", "site", "split"]).agg(
+            isolates=("label", "size"), resistant=("label", "sum")).reset_index()
+        counts["resistant_pct"] = (100 * counts.resistant / counts.isolates).round(1)
+        counts.to_csv(os.path.join(ds, "isolate_counts.csv"), index=False)
+        log(f"  {len(m)} isolates listed")
+        done.append(f"02_Dataset: manifest of {len(m)} isolates")
+        if spectra:
+            log("writing the spectra subset ...")
+            size = spectra_subset(os.path.join(ds, "spectra_subset"))
+            log(f"  {size/1e6:.0f} MB")
+            done.append(f"02_Dataset: spectra subset, {size/1e6:.0f} MB")
+    else:
+        missing.append("02_Dataset: manifest and spectra need the DRIAMS copy "
+                       f"(looked in {data.data_root()}); run notebook 05 where the data is mounted")
 
     # 03 logs
-    _copytree(paths.LOGS, os.path.join(dest, "03_Logs"))
+    n_logs = _copytree(paths.LOGS, os.path.join(dest, "03_Logs"))
+    (done if n_logs else missing).append(
+        f"03_Logs: {n_logs} files" if n_logs else
+        f"03_Logs: nothing in {paths.LOGS}; worker logs and the selection log come from notebook 05")
 
     # 04 results
     res = os.path.join(dest, "04_Results")
@@ -145,10 +161,15 @@ def build(dest, spectra=True, paper_pdf=None, zip_results=True, log=print):
 
     # 05 SHAP
     sh = os.path.join(dest, "05_Explainability_SHAP")
+    got = []
     for f in ("shap_top_bins.csv", "shap_agreement.csv", "shap_profiles.npz"):
         src = os.path.join(paths.TABLES, f)
         if os.path.isfile(src):
             shutil.copy2(src, os.path.join(sh, f))
+            got.append(f)
+    (done if got else missing).append(
+        "05_Explainability_SHAP: " + ", ".join(got) if got else
+        "05_Explainability_SHAP: empty; run explain.run() then explain.compare() in notebook 05")
 
     # 06 code
     here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -159,8 +180,23 @@ def build(dest, spectra=True, paper_pdf=None, zip_results=True, log=print):
         if os.path.isfile(os.path.join(here, f)):
             shutil.copy2(os.path.join(here, f), os.path.join(code, f))
 
+    nt = len([f for f in os.listdir(os.path.join(res, "tables"))]) if os.path.isdir(os.path.join(res, "tables")) else 0
+    done.append(f"04_Results: {nt} tables, plus the raw result records")
+    done.append("06_Code: amr_al package, notebooks and the research log")
+    if not os.listdir(os.path.join(dest, "07_Answers")):
+        missing.append("07_Answers: written once the SHAP and selection logs exist")
+
     open(os.path.join(dest, "README.md"), "w").write(_TOP_README)
+    with open(os.path.join(dest, "STATUS.md"), "w") as fh:
+        fh.write("# What is in this folder so far\n\nBuilt " + time.strftime("%d %b %Y, %H:%M") + ".\n\n## Ready\n\n")
+        fh.write("".join(f"- {x}\n" for x in done) or "- nothing yet\n")
+        fh.write("\n## Still to come\n\n")
+        fh.write("".join(f"- {x}\n" for x in missing) or "- nothing; the folder is complete\n")
     log(f"\nfolder ready: {dest}")
+    for x in done:
+        log("  ready    " + x)
+    for x in missing:
+        log("  pending  " + x)
     return dest
 
 
