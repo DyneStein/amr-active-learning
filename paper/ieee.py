@@ -8,30 +8,32 @@ S = os.environ.get("IEEE_OUT", HERE) + "/"
 # IEEE conference layout: US Letter, 0.625 in side margins, two 3.5 in columns with a
 # 0.25 in gutter, 10 pt Times body, 8 pt captions and references.
 CSS = """
-@page { size: Letter; margin: 0.75in 0.625in 0.9in 0.625in; }
+@page { size: Letter; margin: 0.75in 0.63in 1in 0.63in; }
 * { box-sizing: border-box; }
 body { font-family:"Times New Roman",Times,serif; font-size:9.6pt; line-height:1.14; color:#000;
        background:#fff; margin:0; text-align:justify; hyphens:none; -webkit-hyphens:none;
-       column-count:2; column-gap:0.25in; }
+       column-count:2; column-gap:0.25in; column-width:3.38in; }
 .span { column-span:all; }
-.ttl { text-align:center; font-size:20pt; line-height:1.15; margin:0 0 9pt; font-weight:400; }
-.au { text-align:center; font-size:10.5pt; line-height:1.3; margin:0 0 2pt; }
+.ttl { text-align:center; font-size:24pt; line-height:1.15; margin:0 0 9pt; font-weight:400; }
+.auwrap { display:flex; justify-content:center; gap:0.22in; margin:0 0 12pt; }
+.aublk { font-size:9pt; line-height:1.28; text-align:center; flex:0 1 2.2in; }
+.aublk .nm { font-size:10pt; }
 .af { text-align:center; font-size:9pt; line-height:1.3; margin:0; font-style:italic; }
 .em { text-align:center; font-size:9pt; line-height:1.3; margin:0 0 11pt; }
-h2 { font-size:9.6pt; font-weight:400; font-variant:small-caps; text-align:center;
+h2 { font-size:10pt; font-weight:400; font-variant:small-caps; text-align:center;
      margin:9pt 0 3pt; break-after:avoid; letter-spacing:0.02em; }
-h3 { font-size:9.6pt; font-weight:400; font-style:italic; text-align:left;
+h3 { font-size:10pt; font-weight:400; font-style:italic; text-align:left;
      margin:6pt 0 1pt; break-after:avoid; }
-p { margin:0; text-indent:0.17in; }
+p { margin:0 0 6pt; text-indent:0.2in; }
 p.ni { text-indent:0; }
-.abs { font-size:9pt; text-indent:0.17in; margin:0 0 5pt; }
+.abs { font-size:9pt; text-indent:0.19in; margin:0 0 10pt; }
 .abs b, .idx b { font-style:italic; font-weight:700; }
-.idx { font-size:9pt; text-indent:0.17in; margin:0 0 4pt; }
+.idx { font-size:9pt; text-indent:0.19in; margin:0 0 6pt; }
 figure { margin:7pt 0 7pt; break-inside:avoid; }
 figure.w { column-span:all; margin:4pt 0 9pt; }
 figure img, figure .art { display:block; width:100%; }
 figcaption { font-size:8pt; line-height:1.22; margin-top:3.5pt; text-align:justify; text-indent:0; }
-table { border-collapse:collapse; width:100%; font-size:7.9pt; margin:0 0 2pt; }
+table { border-collapse:collapse; width:100%; font-size:8pt; margin:0 0 2pt; }
 table.w { }
 .tw { column-span:all; margin:4pt 0 9pt; break-inside:avoid; }
 .tbl { margin:7pt 0 7pt; break-inside:avoid; }
@@ -74,31 +76,38 @@ def table(num, cap, body, wide=False):
 FRONT = """<div class="span">
 <p class="ttl">Cost and Safety of Label Acquisition Strategies for<br>
 MALDI-TOF Antimicrobial Resistance Prediction</p>
-<p class="au">Dyen Asif, Hira Mastoor, Maryam Shahbaz</p>
-<p class="af">Department of Computer Science, National University of Computer and Emerging Sciences, Islamabad, Pakistan</p>
-<p class="em">i240608@isb.nu.edu.pk, hira.mastoor@nu.edu.pk, maryam.shahbaz@nu.edu.pk</p>
+<div class="auwrap">
+<div class="aublk"><span class="nm">Dyen Asif</span><br><i>Department of Computer Science</i><br>
+<i>National University of Computer and Emerging Sciences</i><br>Islamabad, Pakistan<br>
+i240608@isb.nu.edu.pk</div>
+<div class="aublk"><span class="nm">Hira Mastoor</span><br><i>Department of Computer Science</i><br>
+<i>National University of Computer and Emerging Sciences</i><br>Islamabad, Pakistan<br>
+hira.mastoor@nu.edu.pk</div>
+<div class="aublk"><span class="nm">Maryam Shahbaz</span><br><i>Department of Computer Science</i><br>
+<i>National University of Computer and Emerging Sciences</i><br>Islamabad, Pakistan<br>
+maryam.shahbaz@nu.edu.pk</div>
+</div>
 </div>
 
-<p class="abs"><b>Abstract</b>&mdash;Machine learning (ML) applied to matrix-assisted laser desorption
-ionization time-of-flight (MALDI-TOF) mass spectra can predict antimicrobial resistance (AMR) in hours
-rather than days. A deployed model decays as the local bacterial population changes, so it has to be
-retrained, and every training label is a laboratory antimicrobial susceptibility test (AST) that someone
-pays for. Active learning (AL) is the usual answer to that problem. A 2026 systematic review of 115 ML
-studies on clinical MALDI-TOF spectra reports none that treat label acquisition as a cost. We ran 1540
-retraining simulations on the Database of Resistance Information on Antimicrobials and MALDI-TOF
-Mass Spectra (DRIAMS) over three species and antibiotic pairs, four hospitals,
-five budgets and ten seeds, using a temporal protocol in which a model trained on 2015 and 2016 buys
-labels during 2017 and is tested on 2018. Across 165 paired comparisons, no uncertainty, diversity or
-hybrid rule beat random selection after correction for multiple testing, and two were worse. The reason
-is that little accuracy is available to compete for: the area under the receiver operating characteristic
-curve (AUROC) between never retraining and retraining on every isolate spans only 0.044 to 0.051. The
-budget buys cost rather than accuracy. Four hundred tests, which is 19 to 31 percent of a year of
-isolates, recover 50 to 77 percent of that gain. Uncertainty sampling is the weakest rule by AUROC but
-cuts resistant isolates that go untested and are reported susceptible by 33 to 73 percent. An analysis using SHapley
-Additive exPlanations (SHAP) for trees indicates why the rules tie, since models trained under different rules rely on the same small
-set of spectral bins.</p>
+<p class="abs"><b>Abstract</b>&mdash;Machine learning (ML) applied to matrix-assisted laser
+desorption ionization time-of-flight (MALDI-TOF) mass spectra can predict antimicrobial resistance (AMR)
+in hours rather than days. A deployed model decays as the local population changes, so it must
+be retrained, and every label is a laboratory antimicrobial susceptibility test (AST) that someone pays
+for. Active learning (AL) is the usual answer, yet a 2026 review of 115 ML studies on clinical MALDI-TOF
+spectra reports none that treat label acquisition as a cost. We ran 1540
+retraining simulations on the Database of Resistance Information on Antimicrobials and MALDI-TOF Mass
+Spectra (DRIAMS), covering three species and antibiotic pairs, four hospitals, five budgets and ten
+seeds. A model trained on 2015 and 2016 buys labels during 2017 and is tested on 2018. Across
+165 paired comparisons, no uncertainty, diversity or hybrid rule beat random selection after correction
+for multiple testing; two were worse. Little accuracy is available to compete for: the area
+under the receiver operating characteristic curve (AUROC) between never retraining and retraining on
+every isolate spans only 0.044 to 0.051. The budget buys cost rather than accuracy. Four hundred tests, 19
+to 31 percent of a year of isolates, recover 50 to 77 percent of that gain. Uncertainty
+sampling is the weakest rule by AUROC but cuts resistant isolates that go untested and are reported
+susceptible by 33 to 73 percent. SHapley Additive exPlanations (SHAP) indicate why the rules tie: models
+trained under different rules use the same spectral bins.</p>
 
-<p class="idx"><b>Index Terms</b>&mdash;antimicrobial resistance, active learning, MALDI-TOF mass
+<p class="idx"><b>Keywords</b>&mdash;antimicrobial resistance, active learning, MALDI-TOF mass
 spectrometry, model maintenance, explainable machine learning.</p>
 """
 
@@ -109,7 +118,7 @@ S1 = """<h2>I.&nbsp;&nbsp;Introduction</h2>
 drugs still work, which in routine practice means culture based AST. That takes up to 72 hours. MALDI-TOF
 mass spectrometry is already present in most clinical microbiology laboratories for species
 identification, and the same spectrum acquired for that purpose can be reused to predict resistance with
-ML, which reduces the delay from days to hours [2], [3].</p>
+ML, which reduces the delay from days to hours [2].</p>
 
 <p>Such a model does not stay accurate on its own. The population of isolates in a hospital changes, the
 instrument is serviced or replaced, and the resistance mechanisms in circulation shift. In our own data a
@@ -120,13 +129,13 @@ A label here is not an annotation that a person can supply in a few seconds. It 
 with reagent and technician costs, and a laboratory that is willing to fund only a few hundred extra tests
 in a year has to decide which isolates receive them.</p>
 
-<p>This is the setting that AL was designed for [4]. The model ranks the isolates that arrive and asks for
+<p>This is the setting that AL was designed for [3]. The model ranks the isolates that arrive and asks for
 labels only where they are expected to be most informative, usually near the decision boundary or spread
 across the feature space. AL is well studied in medical imaging and in text, and it is routinely reported
 to reach a target accuracy with a fraction of the labels. Whether it does so for MALDI-TOF resistance
 prediction has not been established. A systematic review published in 2026, covering 115 studies that
 apply ML to clinical MALDI-TOF spectra, groups the field by task, preprocessing, model family and
-evaluation, and does not identify a single study in which label acquisition cost is a variable [5].
+evaluation, and does not identify a single study in which label acquisition cost is a variable [4].
 Prior work on this modality either assumes that all labels are already present or evaluates a fixed
 training set.</p>
 
@@ -156,17 +165,17 @@ T1 = """<table class="top bot">
 <tbody>
 <tr><td>Weis <i>et al.</i> [2]</td><td>AMR from MALDI-TOF, DRIAMS</td><td class="c">4</td>
     <td class="c">no</td><td class="c">no</td><td class="c">no</td><td class="c">no</td></tr>
-<tr><td>Weis <i>et al.</i> [6]</td><td>Topological and kernel methods</td><td class="c">1</td>
+<tr><td>Weis <i>et al.</i> [5]</td><td>Topological and kernel methods</td><td class="c">1</td>
     <td class="c">no</td><td class="c">no</td><td class="c">no</td><td class="c">no</td></tr>
-<tr><td>Duroux <i>et al.</i> [7]</td><td>Generalisation to unseen sites</td><td class="c">4</td>
+<tr><td>Duroux <i>et al.</i> [6]</td><td>Generalisation to unseen sites</td><td class="c">4</td>
     <td class="c">yes</td><td class="c">no</td><td class="c">no</td><td class="c">no</td></tr>
-<tr><td>Corvelo Benz <i>et al.</i> [8]</td><td>Conformal guarantees, DRIAMS</td><td class="c">4</td>
+<tr><td>Corvelo Benz <i>et al.</i> [7]</td><td>Conformal guarantees, DRIAMS</td><td class="c">4</td>
     <td class="c">no</td><td class="c">no</td><td class="c">partly</td><td class="c">no</td></tr>
-<tr><td>Schmidt-Santiago <i>et al.</i> [5]</td><td>Review of 115 MALDI-TOF ML studies</td>
+<tr><td>Schmidt-Santiago <i>et al.</i> [4]</td><td>Review of 115 MALDI-TOF ML studies</td>
     <td class="n">n/a</td><td class="c">rare</td><td class="c">none</td><td class="c">rare</td><td class="c">21/115</td></tr>
-<tr><td>Chen <i>et al.</i> [9]</td><td>AL with selective prediction, images</td><td class="c">n/a</td>
+<tr><td>Chen <i>et al.</i> [8]</td><td>AL with selective prediction, images</td><td class="c">n/a</td>
     <td class="c">no</td><td class="c">yes</td><td class="c">no</td><td class="c">no</td></tr>
-<tr><td>Chen <i>et al.</i> [10]</td><td>Continuous learning, malware</td><td class="c">n/a</td>
+<tr><td>Chen <i>et al.</i> [9]</td><td>Continuous learning, malware</td><td class="c">n/a</td>
     <td class="c">yes</td><td class="c">yes</td><td class="c">no</td><td class="c">no</td></tr>
 <tr class="r"><td>This work</td><td>AL for AMR from MALDI-TOF, DRIAMS</td><td class="c">4</td>
     <td class="c">yes</td><td class="c">yes</td><td class="c">yes</td><td class="c">yes</td></tr>
@@ -177,21 +186,21 @@ S2 = """<h2>II.&nbsp;&nbsp;Related Work</h2>
 of DRIAMS, which pairs more than 300000 routine spectra with susceptibility results and established that
 gradient boosted trees and shallow networks reach clinically interesting discrimination on several
 species and antibiotic combinations [2]. Later work improved the representation with topological and
-kernel methods [6], extended prediction to several antibiotics at once, and added statistical guarantees
-through conformal prediction [8]. The systematic review of Schmidt-Santiago <i>et al.</i> covers 115
+kernel methods [5], extended prediction to several antibiotics at once, and added statistical guarantees
+through conformal prediction [7]. The systematic review of Schmidt-Santiago <i>et al.</i> covers 115
 studies in this area and reports that SHAP values are used for interpretation
 in 21 of them, so model explanation is established practice on this modality, while temporal evaluation
-remains uncommon [5]. Generalisation across hospitals has been studied directly, and performance drops
-sharply when a model is moved to a site it was not trained on [7].</p>
+remains uncommon [4]. Generalisation across hospitals has been studied directly, and performance drops
+sharply when a model is moved to a site it was not trained on [6].</p>
 
 <p>Active learning has a long history. Uncertainty sampling selects the instances closest to the decision
-boundary [11], core set and diversity methods instead cover the input space [12], and importance weighted
-and cost sensitive variants correct the bias that selective querying introduces [13], [14]. Hybrid rules
-combine the two signals [15]. The literature is not uniformly positive. Random selection is a stronger
+boundary [10], core set and diversity methods instead cover the input space [11], and importance weighted
+and cost sensitive variants correct the bias that selective querying introduces [12], [13]. Hybrid rules
+combine the two signals [14]. The literature is not uniformly positive. Random selection is a stronger
 baseline than it is often given credit for, and injecting randomness into uncertainty sampling has been
-reported to improve its robustness [16]. In security, where models are retrained continuously against a
-moving target, label acquisition under budget has been studied in its own right [10], [17], and work
-bridging AL and selective prediction shows that the two interact [9]. These settings resemble ours in
+reported to improve its robustness [15]. In security, where models are retrained continuously against a
+moving target, label acquisition under budget has been studied in its own right [9], [16], and work
+bridging AL and selective prediction shows that the two interact [8]. These settings resemble ours in
 that labels are expensive and the data distribution moves, but none of them involves mass spectra or
 susceptibility testing.</p>
 
@@ -244,7 +253,7 @@ tested everything.</p>
 A very major error (VME) is a resistant isolate reported as susceptible, which can send a patient home on
 a drug that will not work. A major error (ME) is a susceptible isolate reported as resistant, which
 wastes a broader spectrum agent and contributes to selection pressure. The definitions follow the International Organization
-for Standardization (ISO) standard 20776-2 [18]. Both are reported throughout, because a rule that lowers one while raising the other has
+for Standardization (ISO) standard 20776-2 [17]. Both are reported throughout, because a rule that lowers one while raising the other has
 not improved anything.</p>
 
 <p>We separate two views that are often conflated. The predictive view is the usual one, namely how well
@@ -254,7 +263,7 @@ how many were resistant and were nonetheless reported susceptible. These are cou
 not rates, and the two views do not have to agree.</p>
 
 <h3>D. Explaining the fitted models</h3>
-<p class="ni">To understand why the rules behave similarly we compute SHAP values [19], which distribute a
+<p class="ni">To understand why the rules behave similarly we compute SHAP values [18], which distribute a
 single prediction across the input features in the unique way that satisfies local accuracy, missingness
 and consistency. For tree ensembles these values have an exact polynomial time solution, so no
 sampling approximation is involved. We use the TreeSHAP implementation inside the gradient boosting
@@ -285,7 +294,7 @@ deterministic hash of the isolate code rather than by calendar quarter. The cros
 model trained at the primary site to each of the other three hospitals.</p>
 
 <h3>B. Model, protocol and statistics</h3>
-<p class="ni">The classifier is a gradient boosted tree ensemble [20], tuned once on the 2015 and 2016
+<p class="ni">The classifier is a gradient boosted tree ensemble [19], tuned once on the 2015 and 2016
 data only and then held fixed, so that no information from the pool or test years enters the
 configuration. Twenty percent of the training years is held out to set the threshold <i>t</i> at the
 lowest value achieving 90 percent sensitivity to resistance, which reflects the clinical preference for
@@ -295,7 +304,7 @@ five, giving 1540 retraining simulations in total.</p>
 
 <p>Strategies are compared with random selection on matched seeds using the Wilcoxon signed rank test,
 and the resulting p values are corrected across the whole family of comparisons with the Holm procedure
-[21]. We report the corrected values only. The DRIAMS release used here is archived at doi:10.5061/dryad.bzkh1899q, and our code, the per
+[20]. We report the corrected values only. The DRIAMS release used here is archived at doi:10.5061/dryad.bzkh1899q, and our code, the per
 isolate acquisition log and the per run result records are released with the paper.</p>
 """
 
@@ -485,8 +494,6 @@ REFS = """<h2>References</h2>
 2019: a systematic analysis,&rdquo; <i>The Lancet</i>, vol. 399, no. 10325, pp. 629-655, 2022.</li>
 <li>C. Weis <i>et al.</i>, &ldquo;Direct antimicrobial resistance prediction from clinical MALDI-TOF mass
 spectra using machine learning,&rdquo; <i>Nature Medicine</i>, vol. 28, pp. 164-174, 2022.</li>
-<li>G. De Waele, G. Menschaert, and W. Waegeman, &ldquo;An antimicrobial drug recommender system using
-MALDI-TOF MS and dual-branch neural networks,&rdquo; <i>eLife</i>, vol. 13, e93242, 2024.</li>
 <li>B. Settles, &ldquo;Active learning literature survey,&rdquo; Computer Sciences Technical Report 1648, University
 of Wisconsin-Madison, 2009.</li>
 <li>L. Schmidt-Santiago, A. Guerrero-Lopez, C. Sevilla-Salcedo, D. Rodriguez-Temporal, B.
