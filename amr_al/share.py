@@ -117,7 +117,7 @@ def spectra_subset(dst, site_years=None):
     return total
 
 
-def build(dest, spectra=True, paper_pdf=None, zip_results=True, log=print):
+def build(dest, spectra=True, paper_pdf=None, answers_pdf=None, zip_results=True, log=print):
     """Assemble the folder. Parts whose inputs are missing are skipped and listed
     in STATUS.md, so this can be run before everything has been produced."""
     for d in LAYOUT:
@@ -203,7 +203,10 @@ def build(dest, spectra=True, paper_pdf=None, zip_results=True, log=print):
     nt = len([f for f in os.listdir(os.path.join(res, "tables"))]) if os.path.isdir(os.path.join(res, "tables")) else 0
     done.append(f"04_Results: {nt} tables, plus the raw result records")
     done.append("06_Code: amr_al package, notebooks and the research log")
-    if not os.listdir(os.path.join(dest, "07_Answers")):
+    if answers_pdf and os.path.isfile(answers_pdf):
+        shutil.copy2(answers_pdf, os.path.join(dest, "07_Answers", os.path.basename(answers_pdf)))
+        done.append("07_Answers: " + os.path.basename(answers_pdf))
+    elif not os.listdir(os.path.join(dest, "07_Answers")):
         missing.append("07_Answers: written once the SHAP and selection logs exist")
 
     open(os.path.join(dest, "README.md"), "w").write(_TOP_README)
