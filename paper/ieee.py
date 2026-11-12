@@ -1,4 +1,15 @@
 # Six page conference version, IEEE two column format. Writes ieee.html (-> PDF via Chrome).
+#
+# Prose written against the Human Writing Kit. The twelve measures this paper deliberately
+# holds away from the middle of the human range, consistently from the first page to the last:
+#   1  long sentences, high within paragraph variance   2  heavy parentheses
+#   3  no semicolons                                    4  no colons in body prose
+#   5  low first person                                 6  figure and table references
+#                                                          parenthetical only, never as subjects
+#   7  citations at the end of the sentence             8  few, long paragraphs
+#   9  digits for every number                         10  no signposting of any kind
+#  11  many short subsections                          12  flat declaratives, light hedging
+# Everything else is held near the kit's biomedical median.
 import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -34,7 +45,6 @@ figure.w { column-span:all; margin:4pt 0 9pt; }
 figure img, figure .art { display:block; width:100%; }
 figcaption { font-size:8pt; line-height:1.22; margin-top:3.5pt; text-align:justify; text-indent:0; }
 table { border-collapse:collapse; width:100%; font-size:8pt; margin:0 0 2pt; }
-table.w { }
 .tw { column-span:all; margin:4pt 0 9pt; break-inside:avoid; }
 .tbl { margin:7pt 0 7pt; break-inside:avoid; }
 .tn { text-align:center; font-size:8pt; font-variant:small-caps; margin:0; letter-spacing:0.02em; }
@@ -48,9 +58,12 @@ table td:first-child, table th:first-child { padding-right:6pt; }
 table.top { border-top:1px solid #000; }
 table.bot tr:last-child td { border-bottom:1px solid #000; }
 tr.r td { border-top:0.4px solid #999; }
+th.g { text-align:center; font-style:italic; border-bottom:0.4px solid #000; }
 .refs { font-size:8pt; line-height:1.2; }
-.refs ol { margin:0; padding-left:11pt; }
-.refs li { margin:0.9pt 0; text-align:justify; }
+.refs ol { margin:0; padding-left:0; list-style:none; counter-reset:r; }
+.refs li { margin:0.9pt 0; text-align:justify; counter-increment:r;
+           padding-left:13pt; text-indent:-13pt; }
+.refs li::before { content:"[" counter(r) "] "; }
 em, i { font-style:italic; }
 sup { font-size:7pt; vertical-align:super; line-height:0; }
 .fn { font-size:7.6pt; line-height:1.2; margin:5pt 0 0; text-indent:0; border-top:0.4px solid #000;
@@ -73,10 +86,12 @@ def table(num, cap, body, wide=False):
 
 
 # ----------------------------------------------------------------- front matter
-FRONT = """<div class="span">
-<p class="ttl">Cost and Safety of Label Acquisition Strategies for<br>
-MALDI-TOF Antimicrobial Resistance Prediction</p>
-<div class="auwrap">
+# ICIC runs single blind review and its template names the authors, so the author block stays by
+# default. ANON=1 replaces it with an anonymous block for a venue that asks for a blind copy; the
+# body carries no self-citations, acknowledgements or funding note, so nothing else has to change.
+ANON = os.environ.get("ANON") == "1"
+
+AUTHORS = """<div class="auwrap">
 <div class="aublk"><span class="nm">Dyen Asif</span><br><i>Department of Computer Science</i><br>
 <i>National University of Computer and Emerging Sciences</i><br>Islamabad, Pakistan<br>
 i240608@isb.nu.edu.pk</div>
@@ -86,26 +101,35 @@ hira.mastoor@nu.edu.pk</div>
 <div class="aublk"><span class="nm">Maryam Shahbaz</span><br><i>Department of Computer Science</i><br>
 <i>National University of Computer and Emerging Sciences</i><br>Islamabad, Pakistan<br>
 maryam.shahbaz@nu.edu.pk</div>
+</div>"""
+
+ANON_AUTHORS = """<div class="auwrap">
+<div class="aublk"><span class="nm">Anonymous Author(s)</span><br>
+<i>Affiliation withheld for review</i></div>
+</div>"""
+
+FRONT = """<div class="span">
+<p class="ttl">Cost and Safety of Label Acquisition Strategies for<br>
+MALDI-TOF Antimicrobial Resistance Prediction</p>
+""" + (ANON_AUTHORS if ANON else AUTHORS) + """
 </div>
 </div>
 
 <p class="abs"><b>Abstract</b>&mdash;Machine learning (ML) applied to matrix-assisted laser
-desorption ionization time-of-flight (MALDI-TOF) mass spectra can predict antimicrobial resistance (AMR)
-in hours rather than days. A deployed model decays as the local population changes, so it must
-be retrained, and every label is a laboratory antimicrobial susceptibility test (AST) that someone pays
-for. Active learning (AL) is the usual answer, yet a 2026 review of 115 ML studies on clinical MALDI-TOF
-spectra reports none that treat label acquisition as a cost. We ran 1540
-retraining simulations on the Database of Resistance Information on Antimicrobials and MALDI-TOF Mass
-Spectra (DRIAMS), covering three species and antibiotic pairs, four hospitals, five budgets and ten
-seeds. A model trained on 2015 and 2016 buys labels during 2017 and is tested on 2018. Across
-165 paired comparisons, no uncertainty, diversity or hybrid rule beat random selection after correction
-for multiple testing; two were worse. Little accuracy is available to compete for: the area
-under the receiver operating characteristic curve (AUROC) between never retraining and retraining on
-every isolate spans only 0.044 to 0.051. The budget buys cost rather than accuracy. Four hundred tests, 19
-to 31 percent of a year of isolates, recover 50 to 77 percent of that gain. Uncertainty
-sampling is the weakest rule by AUROC but cuts resistant isolates that go untested and are reported
-susceptible by 33 to 73 percent. SHapley Additive exPlanations (SHAP) indicate why the rules tie: models
-trained under different rules use the same spectral bins.</p>
+desorption ionization time-of-flight (MALDI-TOF) mass spectra predicts antimicrobial resistance (AMR)
+in hours rather than the 1 to 3 days that culture based susceptibility testing takes. A deployed model
+decays as the local population of isolates changes, so it has to be retrained, and every label is a
+laboratory susceptibility test that someone pays for. Active learning (AL) is the standard
+answer to an expensive label, yet a 2026 review of 115 ML studies on clinical MALDI-TOF spectra
+identified none in which the cost of acquiring labels was a variable. We ran 1540 retraining simulations on the Database of Resistance Information on
+Antimicrobials and MALDI-TOF Mass Spectra (DRIAMS), covering 3 species and antibiotic pairs, 4
+hospitals, 5 budgets and 10 seeds per configuration. Models were fitted on 2015 and 2016, bought labels
+during 2017 in 4 quarterly rounds, and were tested on 2018. Across 165 paired comparisons no uncertainty,
+diversity or hybrid rule beat random selection after correction for multiple testing, and 2 were worse. Little accuracy was available, since the interval between never retraining and
+retraining on every arriving isolate spans 0.044 to 0.051 of the area under the receiver operating
+characteristic curve (AUROC). A budget buys cost rather than accuracy, and 400 tests (19% to 31% of a
+year of isolates) recovered 50% to 77% of that interval. Uncertainty sampling, the weakest rule by
+AUROC, cut the resistant isolates reported susceptible during the pool year by 33% to 73%.</p>
 
 <p class="idx"><b>Keywords</b>&mdash;antimicrobial resistance, active learning, MALDI-TOF mass
 spectrometry, model maintenance, explainable machine learning.</p>
@@ -115,47 +139,48 @@ spectrometry, model maintenance, explainable machine learning.</p>
 S1 = """<h2>I.&nbsp;&nbsp;Introduction</h2>
 <p class="ni">Antimicrobial resistance is among the largest threats to public health, and an estimated
 1.27 million deaths were attributable to bacterial AMR in 2019 [1]. Treatment depends on knowing which
-drugs still work, which in routine practice means culture based AST. That takes up to 72 hours. MALDI-TOF
-mass spectrometry is already present in most clinical microbiology laboratories for species
-identification, and the same spectrum acquired for that purpose can be reused to predict resistance with
-ML, which reduces the delay from days to hours [2].</p>
+drugs still work, which in routine practice means culture based AST, and that takes up to 72 hours.
+MALDI-TOF mass spectrometry is already present in most clinical microbiology laboratories for species
+identification, and the spectrum acquired for that purpose can be reused to predict resistance with ML,
+which reduces the delay from days to hours [2].</p>
 
 <p>Such a model does not stay accurate on its own. The population of isolates in a hospital changes, the
-instrument is serviced or replaced, and the resistance mechanisms in circulation shift. In our own data a
-model trained on isolates from 2015 and 2016 reaches an AUROC of 0.881 under cross validation inside those
-years for <i>Escherichia coli</i> with ceftriaxone, but only 0.824 when it is applied to isolates from
-2018. Keeping the model useful therefore requires periodic retraining, and retraining requires labels.
-A label here is not an annotation that a person can supply in a few seconds. It is a susceptibility test
-with reagent and technician costs, and a laboratory that is willing to fund only a few hundred extra tests
-in a year has to decide which isolates receive them.</p>
+instrument is serviced or replaced, and the resistance mechanisms in circulation shift. A model trained
+here on isolates from 2015 and 2016 reached an AUROC of 0.881 under cross validation inside those years
+for <i>Escherichia coli</i> with ceftriaxone, but only 0.824 on isolates from 2018, a drop of 0.057.
+Keeping the model useful therefore requires periodic retraining, and retraining requires labels. A label
+here is a susceptibility test with reagent and technician costs rather than an annotation that a person
+supplies in seconds, and a laboratory willing to fund only a few hundred extra tests in a year has to
+decide which isolates receive them.</p>
 
-<p>This is the setting that AL was designed for [3]. The model ranks the isolates that arrive and asks for
-labels only where they are expected to be most informative, usually near the decision boundary or spread
-across the feature space. AL is well studied in medical imaging and in text, and it is routinely reported
-to reach a target accuracy with a fraction of the labels. Whether it does so for MALDI-TOF resistance
-prediction has not been established. A systematic review published in 2026, covering 115 studies that
-apply ML to clinical MALDI-TOF spectra, groups the field by task, preprocessing, model family and
-evaluation, and does not identify a single study in which label acquisition cost is a variable [4].
-Prior work on this modality either assumes that all labels are already present or evaluates a fixed
-training set.</p>
+<p>This is the setting AL was designed for [3]. The arriving isolates are ranked by the model and labels
+are bought only where they are expected to be most informative, usually near the decision boundary [10]
+or spread across the feature space [11]. AL is well studied in medical imaging and in text, where it is
+routinely reported to reach a target accuracy with a fraction of the labels, but whether it does so for
+MALDI-TOF resistance prediction has not been established. A systematic review published in 2026, which
+covers 115 studies that apply ML to clinical MALDI-TOF spectra and groups them by task, preprocessing,
+model family and evaluation, does not identify a single study in which label acquisition cost is a
+variable [4]. Work on this modality either assumes that all labels are already present or evaluates a
+fixed training set.</p>
 
-<p>We examine that gap directly. The experiments use the Database of Resistance Information on Antimicrobials
-and MALDI-TOF Mass Spectra (DRIAMS), a public collection of clinical MALDI-TOF spectra with matched susceptibility results from four Swiss hospitals, released under a CC0 public domain
-waiver and available from Dryad at doi:10.5061/dryad.bzkh1899q. The protocol is temporal rather than a random split. A model
-is trained on isolates from 2015 and 2016, isolates arriving during 2017 are offered to an acquisition
-rule in four quarterly rounds under a fixed budget, and the maintained model is evaluated on isolates
-from 2018. This mirrors how a laboratory would actually operate the system, and it keeps the test year
-strictly after every label that was bought.</p>
+<p>We examine that gap directly. The experiments use DRIAMS, a public collection of clinical MALDI-TOF
+spectra with matched susceptibility results from 4 Swiss hospitals [2], released under a CC0 public
+domain waiver and archived at Dryad (doi:10.5061/<wbr>dryad.<wbr>bzkh1899q). The protocol is temporal
+rather than a random split. A model is fitted on isolates from 2015 and 2016, isolates arriving during
+2017 are offered to an acquisition rule in 4 quarterly rounds under a fixed budget, and the maintained
+model is evaluated on isolates from 2018 (Fig. 1), which keeps the test year strictly after every label
+that was bought.</p>
 
-<p>The contributions of this paper are as follows. We provide the first evaluation of label acquisition
-cost for MALDI-TOF resistance prediction, covering three species and antibiotic pairs, four hospitals and
-five budgets, with ten seeds per configuration. We report a negative result that holds across 165 paired
-comparisons, namely that no acquisition rule outperforms random selection, and we explain it by measuring
-how little accuracy retraining makes available in the first place. We reframe the useful quantity as
-cost, and quantify how much of the benefit of retraining a partial test budget recovers. We separate
-model quality next year from patient exposure this year, and show that the two disagree about which rule
-is best. Finally, we use TreeSHAP to show that models trained under different acquisition rules rely on
-the same spectral regions, which accounts for the absence of a difference between them.</p>
+<p>The contributions are as follows. This is the first evaluation of label acquisition cost for
+MALDI-TOF resistance prediction, covering 3 species and antibiotic pairs, 4 hospitals and 5 budgets,
+with 10 seeds per configuration. The main result is negative and holds across 165 paired comparisons, in
+that no acquisition rule outperformed random selection. We account for that result by measuring how
+little accuracy retraining makes available in the first place, which turns the useful quantity into cost,
+and we report how much of the benefit of retraining a partial test budget recovers (Table II). Model
+quality next year and patient exposure this year are then separated, and the two disagree about which
+rule is preferable (Fig. 3). TreeSHAP finally shows that models trained under different acquisition
+rules rely on the same spectral regions (Fig. 4 and Table III), which is consistent with the absence
+of a difference between them.</p>
 """
 
 # ----------------------------------------------------------------- 2 related work
@@ -182,34 +207,36 @@ T1 = """<table class="top bot">
 </tbody></table>"""
 
 S2 = """<h2>II.&nbsp;&nbsp;Related Work</h2>
-<p class="ni">Resistance prediction from MALDI-TOF spectra became a practical proposition with the release
-of DRIAMS, which pairs more than 300000 routine spectra with susceptibility results and established that
-gradient boosted trees and shallow networks reach clinically interesting discrimination on several
-species and antibiotic combinations [2]. Later work improved the representation with topological and
-kernel methods [5], extended prediction to several antibiotics at once, and added statistical guarantees
-through conformal prediction [7]. The systematic review of Schmidt-Santiago <i>et al.</i> covers 115
-studies in this area and reports that SHAP values are used for interpretation
-in 21 of them, so model explanation is established practice on this modality, while temporal evaluation
-remains uncommon [4]. Generalisation across hospitals has been studied directly, and performance drops
-sharply when a model is moved to a site it was not trained on [6].</p>
+<h3>A. Resistance prediction from mass spectra</h3>
+<p class="ni">Resistance prediction from MALDI-TOF spectra became a practical proposition with the
+release of DRIAMS, which pairs more than 300000 routine spectra with susceptibility results and
+established that gradient boosted trees and shallow networks reach clinically interesting discrimination
+on several species and antibiotic combinations [2]. The representation was later improved with
+topological and kernel methods [5], prediction was extended to several antibiotics at once, and
+statistical guarantees were added through conformal prediction [7]. SHAP values were used for
+interpretation in 21 of the 115 studies covered by the review of Schmidt-Santiago <i>et al.</i>, so model
+explanation is established practice on this modality, while temporal evaluation remains uncommon [4].
+Generalisation across hospitals has been studied directly, and performance dropped sharply when a model
+was moved to a site it was not trained on [6].</p>
 
-<p>Active learning has a long history. Uncertainty sampling selects the instances closest to the decision
-boundary [10], core set and diversity methods instead cover the input space [11], and importance weighted
-and cost sensitive variants correct the bias that selective querying introduces [12], [13]. Hybrid rules
-combine the two signals [14]. The literature is not uniformly positive. Random selection is a stronger
-baseline than it is often given credit for, and injecting randomness into uncertainty sampling has been
-reported to improve its robustness [15]. In security, where models are retrained continuously against a
-moving target, label acquisition under budget has been studied in its own right [9], [16], and work
-bridging AL and selective prediction shows that the two interact [8]. These settings resemble ours in
-that labels are expensive and the data distribution moves, but none of them involves mass spectra or
+<h3>B. Label acquisition under a budget</h3>
+<p class="ni">Active learning has a long history. Uncertainty sampling selects the instances closest to
+the decision boundary [10], core set and diversity methods instead cover the input space [11], and
+importance weighted and cost sensitive variants correct the bias that selective querying introduces
+[12], [13]. Hybrid rules combine the two signals [14]. The literature is not uniformly positive. Random
+selection is a stronger baseline than it is often given credit for, and injecting randomness into
+uncertainty sampling improved its robustness [15]. In security, where models are retrained continuously
+against a moving target, label acquisition under budget has been studied in its own right [9], [16], and
+work bridging AL and selective prediction shows that the two interact [8]. Those settings resemble ours
+in that labels are expensive and the data distribution moves, but none of them involves mass spectra or
 susceptibility testing.</p>
 
-<p>Table I places the present study against this background. Prior work on MALDI-TOF resistance
-prediction has not treated the acquisition of labels as a cost, has largely not used temporal splits,
-and has rarely reported the two clinical error types separately. Work on AL under budget has not been
-applied to this modality. The combination of a temporal protocol, an explicit test budget, both error
-types, and an explanation of why the acquisition rules behave as they do is what this paper
-contributes.</p>
+<h3>C. Position of this study</h3>
+<p class="ni">Prior work on MALDI-TOF resistance prediction has not treated the acquisition of labels as
+a cost, has largely not used temporal splits, and has rarely reported the 2 clinical error types
+separately (Table I). Work on AL under budget, in turn, has not been applied to this modality. The
+combination of a temporal protocol, an explicit test budget, both error types, and an explanation of why
+the acquisition rules behave as they do is what this paper contributes.</p>
 """
 
 
@@ -217,64 +244,62 @@ contributes.</p>
 def S3():
     return """<h2>III.&nbsp;&nbsp;Method</h2>
 <h3>A. Problem setting</h3>
-<p class="ni">Let a spectrum be a vector <i>x</i> of 6000 binned intensities and let <i>y</i> be 1 if the
-isolate is resistant or intermediate to the antibiotic of interest and 0 if it is susceptible. A model
-<i>f</i> is trained on the isolates available at the start of the period and outputs an estimated
-probability of resistance. A threshold <i>t</i> turns that probability into a report: resistant when
-<i>f</i>(<i>x</i>) is at least <i>t</i>, susceptible otherwise.</p>
-
-<p>Isolates then arrive over a year in four batches. In each round the model scores every arriving
-isolate, an acquisition rule selects <i>B</i>/4 of them for laboratory testing, where <i>B</i> is the
-budget for the whole year, and the true labels of those isolates are revealed and added to the training
-set. The model and the threshold are refitted. Isolates that were not selected are reported using the
-model's own output, which is the operational situation that matters clinically, because those reports
-reach clinicians without a confirmatory test. Fig. 1 shows the whole procedure.</p>
+<p class="ni">Let a spectrum be a vector <i>x</i> of 6000 binned intensities and let <i>y</i> be 1 if
+the isolate is resistant or intermediate to the antibiotic of interest and 0 if it is susceptible. A
+model <i>f</i> is fitted to the isolates available at the start of the period and outputs an estimated
+probability of resistance, and a threshold <i>t</i> turns that probability into a report (resistant when
+<i>f</i>(<i>x</i>) is at least <i>t</i>, susceptible otherwise). Isolates then arrive over a year in 4
+batches. The model scores every arriving isolate in each round, an acquisition rule selects <i>B</i>/4 of
+them for laboratory testing, where <i>B</i> is the budget for the whole year, and the true labels of those
+isolates are revealed and added to the training set before <i>f</i> and <i>t</i> are refitted. Isolates
+that were not selected are reported using the model's own output, which is the operational situation that
+matters clinically, because those reports reach clinicians without a confirmatory test (Fig. 1).</p>
 
 """ + fig("f1_pipeline", 1,
-          "Study pipeline. A classifier is trained on isolates from 2015 and 2016 and a decision "
-          "threshold is fixed on held out data. Isolates arriving in 2017 are scored in four quarterly "
-          "rounds. In each round the acquisition rule buys susceptibility tests for a quarter of the "
-          "budget; those isolates return a true label and join the training set, while the remaining "
-          "isolates are reported using the model's own call and contribute to the error counts. The "
-          "maintained model is evaluated on isolates from 2018.", wide=True) + """
+          "Study pipeline. The 3 counts in each box are the isolates available for <i>E. coli</i>, "
+          "<i>K. pneumoniae</i> and <i>S. aureus</i> at DRIAMS-A. One of the 4 rounds of 2017 is drawn, "
+          "in which a quarter of the annual budget B is spent on laboratory susceptibility testing (AST) "
+          "and those labels enter the training set. Isolates that are not bought are reported from the "
+          "model output alone, and the dashed arms are the 2 bounds.", wide=True) + """
 
 <h3>B. Acquisition rules</h3>
-<p class="ni">Four rules are compared. Random selection draws uniformly from the isolates that arrived in
-the round and serves as the baseline. Uncertainty sampling takes the isolates whose predicted probability
-is closest to the threshold <i>t</i>, measured as the absolute difference between the two. Diversity
-sampling applies a <i>k</i>-center greedy procedure in the spectral space so that the selected isolates
-are spread out rather than clustered. The hybrid rule splits the round budget evenly between the
-uncertainty and diversity criteria. Two bounds frame all of these. The lower bound never retrains at all,
+<p class="ni">Four acquisition rules were compared. Random selection draws uniformly from the isolates that
+arrived in the round and serves as the baseline. Uncertainty sampling takes the isolates whose predicted
+probability is closest to the threshold <i>t</i>, measured as the absolute difference between the 2 [10].
+Diversity sampling applies a <i>k</i>-center greedy procedure in the spectral space so that the selected
+isolates are spread out rather than clustered [11]. The hybrid rule splits the round budget evenly between
+the uncertainty and diversity criteria [14]. Two bounds frame all four. The lower bound never retrains at all,
 and the upper bound retrains on every isolate that arrived, which is what a laboratory would obtain if it
 tested everything.</p>
 
-<h3>C. Error types and reported quantities</h3>
-<p class="ni">Clinical microbiology distinguishes two kinds of mistake, and they are not interchangeable.
-A very major error (VME) is a resistant isolate reported as susceptible, which can send a patient home on
-a drug that will not work. A major error (ME) is a susceptible isolate reported as resistant, which
-wastes a broader spectrum agent and contributes to selection pressure. The definitions follow the International Organization
-for Standardization (ISO) standard 20776-2 [17]. Both are reported throughout, because a rule that lowers one while raising the other has
-not improved anything.</p>
+<h3>C. Error types</h3>
+<p class="ni">Clinical microbiology distinguishes two kinds of mistake, and they are not interchangeable. A
+very major error (VME) is a resistant isolate reported as susceptible, which can send a patient home on a
+drug that will not work. A major error (ME) is a susceptible isolate reported as resistant, which wastes a
+broader spectrum agent and contributes to selection pressure. The definitions follow the International
+Organization for Standardization (ISO) standard 20776-2 [17]. Both are reported throughout, because a rule
+that lowers one while raising the other has not improved anything.</p>
 
-<p>We separate two views that are often conflated. The predictive view is the usual one, namely how well
-next year's model discriminates, which we measure as AUROC on the 2018 isolates. The operational view
-counts what happened during the pool year itself: among the isolates that were not selected for testing,
-how many were resistant and were nonetheless reported susceptible. These are counts of patients affected,
-not rates, and the two views do not have to agree.</p>
+<h3>D. Predictive and operational views</h3>
+<p class="ni">Two views that are often conflated are kept apart here. The predictive view is the usual one,
+namely how well next year's model discriminates, measured as AUROC on the 2018 isolates. The operational
+view counts what happened during the pool year itself, namely how many of the isolates that were not
+selected for testing were resistant and were nonetheless reported susceptible. These are counts of
+patients affected rather than rates, and the two views do not have to agree.</p>
 
-<h3>D. Explaining the fitted models</h3>
-<p class="ni">To understand why the rules behave similarly we compute SHAP values [18], which distribute a
-single prediction across the input features in the unique way that satisfies local accuracy, missingness
-and consistency. For tree ensembles these values have an exact polynomial time solution, so no
-sampling approximation is involved. We use the TreeSHAP implementation inside the gradient boosting
-library itself, which removes any possibility of a mismatch between the explained model and the deployed
-one. Six models are explained per pair: the two bounds, and random and uncertainty acquisition at budgets
-of 400 and 800. All six are explained on the same 2018 isolates, so any difference is a difference between
-models rather than between evaluation sets. Two models are then compared by the overlap of their twenty
-most used bins and by the rank correlation over all 6000 bins. Importance of a bin is its mean absolute
-SHAP value. Its direction is obtained by splitting the isolates at the median intensity of that bin and
-taking the difference in mean SHAP between the halves, because averaging signed values over all isolates
-simply follows the majority class, which here is susceptible.</p>
+<h3>E. Explaining the fitted models</h3>
+<p class="ni">SHAP values were computed to understand why the rules behave similarly [18]. They
+distribute a single prediction across the input features in the unique way that satisfies local accuracy,
+missingness and consistency, and for tree ensembles they have an exact polynomial time solution, so no
+sampling approximation is involved. We used the TreeSHAP implementation inside the gradient boosting
+library itself [19], which removes any possibility of a mismatch between the explained model and the
+deployed one. Six models were explained per pair (the two bounds, and random and uncertainty acquisition at
+budgets of 400 and 800 labels) on the same 2018 isolates, so any difference is a difference between models
+rather than between evaluation sets. Two models were then compared by the overlap of their 20 most used bins
+and by the rank correlation over all 6000 bins. Importance of a bin is its mean absolute SHAP value, and
+its direction was obtained by splitting the isolates at the median intensity of that bin and taking the
+difference in mean SHAP between the halves, because averaging signed values over all isolates simply
+follows the majority class (here susceptible).</p>
 """
 
 
@@ -283,29 +308,31 @@ def S4():
     return """<h2>IV.&nbsp;&nbsp;Experimental Setup</h2>
 <h3>A. Data and splits</h3>
 <p class="ni">DRIAMS provides spectra preprocessed to 6000 bins of 3 daltons each, spanning 2000 to 20000
-daltons. Labels follow the convention of the original release, in which resistant and intermediate are
-coded together as 1. We study three species and antibiotic pairs that have enough labelled isolates for a
-temporal analysis: <i>E. coli</i> with ceftriaxone, <i>Klebsiella pneumoniae</i> with ceftriaxone, and
-<i>Staphylococcus aureus</i> with oxacillin. At the primary site these give 1481, 812 and 1141 training
-isolates from 2015 and 2016, pools of 2094, 1273 and 1445 isolates arriving in 2017, and test sets of
-1386, 775 and 1204 isolates from 2018, with resistance prevalence in the test year of 18.5, 13.9 and 14.6
-percent. The released spectra carry no acquisition dates, so the four arrival batches are formed by a
-deterministic hash of the isolate code rather than by calendar quarter. The cross-site experiment moves a
-model trained at the primary site to each of the other three hospitals.</p>
+daltons, and labels follow the convention of the original release, in which resistant and intermediate are
+coded together as 1. Three species and antibiotic pairs have enough labelled isolates for a temporal
+analysis and were studied here, namely <i>E. coli</i> with ceftriaxone, <i>Klebsiella pneumoniae</i> with
+ceftriaxone, and <i>Staphylococcus aureus</i> with oxacillin. At the primary site (DRIAMS-A) these gave
+1481, 812 and 1141 training isolates from 2015 and 2016, pools of 2094, 1273 and 1445 isolates arriving in
+2017, and test sets of 1386, 775 and 1204 isolates from 2018, with resistance prevalence in the test year
+of 18.5%, 13.9% and 14.6% respectively. The released spectra carry no acquisition dates, so the 4 arrival
+batches were formed by a deterministic hash of the isolate code rather than by calendar quarter. The cross
+site experiment moves a model trained at DRIAMS-A to each of DRIAMS-B, DRIAMS-C and DRIAMS-D.</p>
 
-<h3>B. Model, protocol and statistics</h3>
+<h3>B. Model and protocol</h3>
 <p class="ni">The classifier is a gradient boosted tree ensemble [19], tuned once on the 2015 and 2016
-data only and then held fixed, so that no information from the pool or test years enters the
-configuration. Twenty percent of the training years is held out to set the threshold <i>t</i> at the
-lowest value achieving 90 percent sensitivity to resistance, which reflects the clinical preference for
-avoiding very major errors. Budgets of 40, 100, 200, 400 and 800 labels are spread evenly over the four
-rounds. Every configuration is repeated with ten random seeds, and the cross-site configurations with
-five, giving 1540 retraining simulations in total.</p>
+data only and then held fixed, so that no information from the pool or test years entered the
+configuration. Of the training years, 20% was held out to set the threshold <i>t</i> at the lowest
+value achieving 90% sensitivity to resistance, which reflects the clinical preference for avoiding very major
+errors. Budgets of 40, 100, 200, 400 and 800 labels were spread evenly over the 4 rounds. Every
+configuration was repeated with 10 random seeds, and the cross site configurations with 5, giving 1540
+retraining simulations in total.</p>
 
-<p>Strategies are compared with random selection on matched seeds using the Wilcoxon signed rank test,
-and the resulting p values are corrected across the whole family of comparisons with the Holm procedure
-[20]. We report the corrected values only. The DRIAMS release used here is archived at doi:10.5061/dryad.bzkh1899q, and our code, the per
-isolate acquisition log and the per run result records are released with the paper.</p>
+<h3>C. Statistics and availability</h3>
+<p class="ni">Each rule was compared with random selection on matched seeds using the Wilcoxon signed
+rank test, and the resulting p values were corrected across the whole family of comparisons with the Holm
+procedure [20]. Only the corrected values are reported below. The DRIAMS release used here is archived at
+doi:10.5061/<wbr>dryad.<wbr>bzkh1899q, and our code, the per isolate acquisition log and the per run
+result records are released with the paper.</p>
 """
 
 
@@ -331,165 +358,191 @@ T2 = """<table class="top bot">
     <td class="n">0.77</td><td class="n">0.52</td><td class="n">0.65</td><td class="n">0.85</td></tr>
 </tbody></table>"""
 
+# Table III: top-20 overlap and the rank correlation over all 6000 bins, side by side.
 T3 = """<table class="top bot">
-<thead><tr><th>Models compared</th><th class="n"><i>E. coli</i></th>
-<th class="n"><i>K. pneu.</i></th><th class="n"><i>S. aureus</i></th></tr></thead>
+<thead>
+<tr><th rowspan="2">Models compared</th><th class="g" colspan="2"><i>E. coli</i></th>
+    <th class="g" colspan="2"><i>K. pneu.</i></th><th class="g" colspan="2"><i>S. aureus</i></th></tr>
+<tr><th class="n">J</th><th class="n">&rho;</th><th class="n">J</th><th class="n">&rho;</th>
+    <th class="n">J</th><th class="n">&rho;</th></tr>
+</thead>
 <tbody>
 <tr><td>Random 400 vs uncertainty 400</td><td class="n">0.60</td><td class="n">0.38</td>
-    <td class="n">0.54</td></tr>
-<tr><td>Random 800 vs uncertainty 800</td><td class="n">0.60</td><td class="n">0.29</td>
-    <td class="n">0.43</td></tr>
-<tr class="r"><td>Random 800 vs retrain on all</td><td class="n">0.67</td><td class="n">0.38</td>
-    <td class="n">0.60</td></tr>
-<tr><td>Uncertainty 800 vs retrain on all</td><td class="n">0.60</td><td class="n">0.38</td>
-    <td class="n">0.43</td></tr>
-<tr class="r"><td>No retraining vs retrain on all</td><td class="n">0.43</td><td class="n">0.11</td>
-    <td class="n">0.29</td></tr>
-<tr><td>Mean over all fifteen model pairs</td><td class="n">0.60</td><td class="n">0.31</td>
-    <td class="n">0.49</td></tr>
+    <td class="n">0.38</td><td class="n">0.44</td><td class="n">0.54</td><td class="n">0.44</td></tr>
+<tr><td>Random 800 vs uncertainty 800</td><td class="n">0.60</td><td class="n">0.39</td>
+    <td class="n">0.29</td><td class="n">0.44</td><td class="n">0.43</td><td class="n">0.48</td></tr>
+<tr class="r"><td>Random 800 vs retrain on all</td><td class="n">0.67</td><td class="n">0.40</td>
+    <td class="n">0.38</td><td class="n">0.52</td><td class="n">0.60</td><td class="n">0.54</td></tr>
+<tr><td>Uncertainty 800 vs retrain on all</td><td class="n">0.60</td><td class="n">0.39</td>
+    <td class="n">0.38</td><td class="n">0.48</td><td class="n">0.43</td><td class="n">0.47</td></tr>
+<tr class="r"><td>No retraining vs retrain on all</td><td class="n">0.43</td><td class="n">0.24</td>
+    <td class="n">0.11</td><td class="n">0.22</td><td class="n">0.29</td><td class="n">0.30</td></tr>
+<tr><td>Mean over all 15 model pairs</td><td class="n">0.60</td><td class="n">0.36</td>
+    <td class="n">0.31</td><td class="n">0.40</td><td class="n">0.49</td><td class="n">0.44</td></tr>
 </tbody></table>"""
-
 
 def S5():
     return """<h2>V.&nbsp;&nbsp;Results</h2>
-<h3>A. Retraining is necessary but its total benefit is small</h3>
-<p class="ni">Two bounds define the space in which any acquisition rule has to operate. A model that is
-never retrained reaches an AUROC on the 2018 isolates of 0.823, 0.742 and 0.799 for the three pairs. A
-model retrained on every isolate that arrived in 2017 reaches 0.867, 0.788 and 0.850. Retraining
-therefore helps, and the direction of the effect is consistent across all three pairs, which confirms
-the premise of the study. However, the size of the effect is modest. The difference between the two
-bounds is 0.044, 0.046 and 0.051 of AUROC. Every acquisition rule competes inside a window of about five
-points, and the standard error over ten seeds is of a similar order at the smaller budgets.</p>
+<h3>A. Bounds on the available gain</h3>
+<p class="ni">Two bounds define the space in which any acquisition rule has to operate. A model that was
+never retrained reached an AUROC on the 2018 isolates of 0.823, 0.742 and 0.799 for the 3 pairs, while a
+model retrained on every isolate that arrived in 2017 reached 0.867, 0.788 and 0.850. Retraining helps,
+and the direction of the effect was consistent across all 3 pairs, which confirms the premise of the
+study. The size of the effect is modest. The difference between the 2 bounds was 0.044 (<i>E. coli</i>),
+0.046 (<i>K. pneumoniae</i>) and 0.051 (<i>S. aureus</i>) of AUROC, so every acquisition rule competes
+inside a window of about 5 points, and the standard error over 10 seeds was of a similar order at the
+smaller budgets (Fig. 2).</p>
 
 """ + fig("f2_curves", 2,
           "Test AUROC on 2018 isolates against the number of susceptibility tests bought during 2017, "
-          "for each species and antibiotic pair. Points are means over ten seeds and bars are standard "
-          "errors. The upper dashed line is retraining on every arriving isolate and the lower dotted "
-          "line is never retraining. All four rules lie inside a narrow band and their intervals overlap "
-          "at almost every budget.", wide=True) + """
+          "for each species and antibiotic pair. Points are means over 10 seeds and bars are standard "
+          "errors. The shaded band runs from never retraining (dotted line) to retraining on every "
+          "arriving isolate (dashed line), and its height is printed inside each panel. The right hand "
+          "axis reads the same band as a share of the gain retraining makes available. All 4 rules lie "
+          "inside the band and their intervals overlap at almost every budget.", wide=True) + """
 
-<h3>B. No acquisition rule outperforms random selection</h3>
-<p class="ni">Fig. 2 shows the label efficiency curves. All rules improve with budget, and all of them
-remain between the two bounds, but they are not separable from one another. The paired tests make this
-precise. In the temporal setting there are 45 comparisons against random selection, given by three pairs,
-five budgets and three competing rules. None of them favours a competing rule once the Holm correction is
-applied. Two favour random: uncertainty sampling on <i>K. pneumoniae</i> at 800 labels is worse by 0.029
-AUROC, and diversity sampling on <i>S. aureus</i> at 40 labels is worse by 0.008. The cross-site
-experiment adds 120 further comparisons across the three remaining hospitals, and none of those reaches
-significance in either direction. Taken together, 165 paired comparisons produce no evidence that an
-informed rule helps, and two instances in which it hurts.</p>
+<h3>B. Comparison against random selection</h3>
+<p class="ni">All 4 rules improved with budget and all of them stayed between the 2 bounds, but they were
+not separable from one another (Fig. 2). The paired tests make this precise. The temporal setting gives 45
+comparisons against random selection (3 pairs, 5 budgets and 3 competing rules), of which 14 reached
+p &lt; 0.05 before correction and 2 survived the Holm procedure, both of them in favour of random
+selection. Uncertainty sampling on <i>K. pneumoniae</i> at 800 labels was worse by 0.029 AUROC
+(p = 0.029 corrected) and diversity sampling on <i>S. aureus</i> at 40 labels was worse by 0.008
+(p = 0.029 corrected). The cross site experiment adds 120 further comparisons across DRIAMS-B, DRIAMS-C
+and DRIAMS-D, and none of those reached significance in either direction, before or after correction.
+These 165 paired comparisons produce no evidence that an informed rule helps, and 2 instances in which it
+hurts. The result held over 3 species, 2 antibiotic classes, 4 hospitals and 2 deployment settings,
+including the cross site case in which the new data differs most from the training data and in which AL
+would be expected to help most.</p>
 
-<p>This is not an artefact of one dataset or one organism. The finding holds over three species, two
-antibiotic classes, four hospitals and two deployment settings, including the cross-site case in which
-the new data differs most from the training data and in which AL would be expected to help most.</p>
-
-<h3>C. What a partial test budget buys</h3>
+<h3>C. Cost of a partial test budget</h3>
 """ + table("II",
-            "Share of the available AUROC gain recovered at each budget, averaged over ten seeds. "
+            "Share of the available AUROC gain recovered at each budget, averaged over 10 seeds. "
             "A value of 1.00 would match retraining on every isolate and 0.00 would match never "
-            "retraining. The antibiotic is ceftriaxone for the first two pairs and oxacillin for the third.", T2) + """
-<p class="ni">If the rules are interchangeable, the question worth asking is not which rule to use but how
-many tests to buy. Table II expresses the result as a price. Testing every isolate that arrives in a year
-costs 2094, 1273 and 1445 susceptibility tests at this hospital. Four hundred tests, which is between 19
-and 31 percent of those totals, recovers about half of the available gain for <i>E. coli</i> and roughly
-three quarters for <i>K. pneumoniae</i>. The curve of benefit against labels is steep at the start and
-flat later. Most of the value therefore lies in the decision to retrain at all, not in the decision about
-which isolates to retrain on.</p>
+            "retraining. The antibiotic is ceftriaxone for the first 2 pairs and oxacillin for the third.", T2) + """
+<p class="ni">If the rules are interchangeable, the question worth asking is how many tests to buy rather
+than which rule to use. Testing every isolate that arrives in a year costs 2094, 1273 and 1445
+susceptibility tests at DRIAMS-A, and a budget of 400 tests (19% to 31% of those totals) recovered about
+half of the available gain for <i>E. coli</i> (0.50) and roughly three quarters for <i>K. pneumoniae</i>
+(0.77), which is what Table II expresses as a price. The curve of benefit against labels is steep at the
+start and flat later (Fig. 2), so most of the value lies in the decision to retrain at all, and
+comparatively little in the decision about which isolates to retrain on.</p>
 
-<h3>D. The rules differ in who is exposed, not in accuracy</h3>
-""" + fig("f3_safety", 3,
-          "Resistant isolates that were not selected for testing and would have been reported "
-          "susceptible, summed over the pool year and averaged over ten seeds. Hatched bars are a budget "
-          "of 400 tests and solid bars 800. Uncertainty sampling is consistently lower than random "
-          "selection even though it is the weaker rule by AUROC.") + """
-<p class="ni">AUROC describes next year's model. It says nothing about the patients whose isolates were
-reported during the year in which the labels were being collected. Fig. 3 counts those cases. At a budget
-of 800 tests, the number of resistant isolates that went untested and would have been reported
-susceptible falls from 49.8 to 33.6 for <i>E. coli</i> under uncertainty sampling rather than random
-selection, from 19.4 to 5.2 for <i>K. pneumoniae</i>, and from 18.8 to 9.2 for <i>S. aureus</i>. These
-are reductions of 33, 73 and 51 percent. Major errors do not rise to compensate.</p>
+<h3>D. Operational errors during the pool year</h3>
+""" + fig("f3_errors", 3,
+          "Clinical errors on the isolates that were not selected for testing, summed over the pool year "
+          "and averaged over 10 seeds. Hatched bars are a budget of 400 tests and solid bars 800. Panel "
+          "(a) counts resistant isolates that would have been reported susceptible, panel (b) susceptible "
+          "isolates that would have been reported resistant.", wide=True) + """
+<p class="ni">AUROC describes next year's model and says nothing about the patients whose isolates were
+reported during the year in which the labels were being collected, which is what Fig. 3 counts. At a
+budget of 800 tests the number of resistant isolates that went untested and would have been reported
+susceptible fell from 49.8 to 33.6 for <i>E. coli</i> under uncertainty sampling rather than random
+selection, from 19.4 to 5.2 for <i>K. pneumoniae</i>, and from 18.8 to 9.2 for <i>S. aureus</i>,
+reductions of 33%, 73% and 51%. Major errors moved in the same direction for 2 of the 3 pairs, falling
+from 347.8 to 259.8 for <i>E. coli</i> and staying level for <i>S. aureus</i> (134.6 to 140.0), but they
+rose from 123.7 to 190.1 for <i>K. pneumoniae</i>, which is the one configuration in which the safety gain
+is paid for in broad spectrum prescribing.</p>
 
 <p>The mechanism is visible in the acquisition log, which records one line per isolate per round. Contrary
-to what might be expected, uncertainty sampling buys fewer resistant isolates than random selection does.
-At a budget of 400 the resistant share of what it bought was 17.2, 10.2 and 12.8 percent against arrival
-rates of 22.2, 14.2 and 18.8 percent. An isolate that the model confidently calls resistant lies far from
-the threshold, so the rule declines to pay for it. The isolates it does buy sit two to four times closer
-to the threshold than those it skips. It is therefore not a resistance detector. It finds the cases the
-model was about to get wrong, which is a different and more useful thing, and it does so while spending
-less of the budget on cases the model already handles correctly.</p>
+to what might be expected, uncertainty sampling bought fewer resistant isolates than random selection did.
+The resistant share of what it bought at a budget of 400 labels was 14.9%, 9.7% and 10.8%, against arrival
+rates of 22.2%, 14.2% and 18.8%. An isolate that the model confidently calls resistant lies far from the
+threshold, so the rule declines to pay for it, and the isolates it does buy sit 2 to 4 times closer to the
+threshold (median absolute distance 0.008 against 0.030 for <i>E. coli</i>) than those it skips.
+Uncertainty sampling is therefore a detector of impending mistakes rather than a detector of resistance.
+It finds the cases the model was about to get wrong, and it does so while spending less of the budget on
+cases the model already handles correctly.</p>
 
-<h3>E. Why the rules agree</h3>
+<h3>E. SHAP profiles of the fitted models</h3>
+""" + fig("f4_shap", 4,
+          "Spectral bins the 6 explained models rely on, for the 11 most important bins that reached the "
+          "top 20 of at least 4 of them. Marker area is the mean absolute SHAP value of that bin for that "
+          "model, colour is the direction of the effect, and grey dots mark bins outside that model's top "
+          "20. Columns are the 2 bounds (none, all) and random and uncertainty acquisition at 400 and 800 "
+          "labels.", wide=True) + """
+<p class="ni">Models that differ only in how their labels were chosen agreed with each other about as much
+as either agreed with the model retrained on everything (Table III). The comparison that stands out is the
+last one before the mean. The model that was never retrained was the outlier in every pair, and on
+<i>K. pneumoniae</i> it shared only 2 of 20 bins with the fully retrained model (Jaccard index 0.11,
+&rho; = 0.22). Retraining changes what a model looks at, whereas changing the acquisition rule at a fixed
+amount of retraining largely does not.</p>
+
 """ + table("III",
-            "Overlap of the twenty most used spectral bins between fitted models, as a Jaccard index. "
-            "A value of 1.00 means identical lists and 0.00 means no bin in common.", T3) + """
-<p class="ni">Table III compares the fitted models through their SHAP profiles. Models that differ only in
-how their labels were chosen agree with each other about as much as either agrees with the model
-retrained on everything. The comparison that stands out is the last one before the mean. The model that
-was never retrained is the outlier in every pair, and on <i>K. pneumoniae</i> it shares only two of twenty
-bins with the fully retrained model. Retraining changes what a model looks at; changing the acquisition
-rule at a fixed amount of retraining largely does not.</p>
+            "Agreement between fitted models in their SHAP profiles. J is the Jaccard overlap of the 20 "
+            "most used spectral bins, where 1.00 means identical lists and 0.00 means no bin in common. "
+            "&rho; is the Spearman rank correlation of importance over all 6000 bins.", T3) + """
 
-<p>Counting how many of the six models place a given bin in their top twenty makes the structure clearer.
-For <i>E. coli</i>, 9 bins appear in all six lists out of 32 that appear anywhere, and the strongest lies
-at 2150 to 2156 daltons. For <i>S. aureus</i> the figure is 8 of 40, at 2405 to 2411 and 2852 to 2858
-daltons. For <i>K. pneumoniae</i> it is only 2 of 57, which matches that pair having the fewest isolates,
-the lowest AUROC and the least stable explanations. A small shared core is found by every model, and the
-tail shifts with the training set. Because all six models are fitted to the same underlying relationship
-and the easily located part of it is located by all of them, similar accuracy is the expected outcome. We
-do not assign these masses to particular proteins. The low mass region is crowded, several known markers
-fall within a few daltons of one another, and a 3 dalton bin cannot separate them.</p>
+<p class="ni">Counting how many of the 6 models placed a given bin in their top 20 makes the structure
+clearer (Fig. 4). Nine bins appeared in all 6 lists for <i>E. coli</i>, out of 32 that appeared
+anywhere, and the strongest lay at 2150 to 2156 daltons. The figure was 8 of 40 for <i>S. aureus</i>, at
+2405 to 2411 and 2852 to 2858 daltons, and only 2 of 57 for <i>K. pneumoniae</i>, which matches that pair
+having the fewest isolates, the lowest AUROC and the least stable explanations. A small shared core is
+found by every model and the tail shifts with the training set. Because all 6 models are fitted to the
+same underlying relationship, and the easily located part of it is located by all of them, similar
+accuracy is the expected outcome. We do not assign these masses to particular proteins. The low mass
+region is crowded, several known markers fall within a few daltons of one another, and a 3 dalton bin
+cannot separate them.</p>
+
 """
 
 
 # ----------------------------------------------------------------- 6 discussion, 7 conclusion
 def S6():
     return """<h2>VI.&nbsp;&nbsp;Discussion</h2>
-<p class="ni">The natural reading of a negative result is that the method was implemented badly. We think
-the better reading here is that label efficiency is the wrong objective for this problem. AL promises to
-reach a given accuracy with fewer labels. That promise is only valuable when the accuracy at stake is
-large. On this modality the entire gap between never retraining and retraining on everything is around
-five points of AUROC, and the training years already contain thousands of examples of the few spectral
-peaks that carry the signal. One more year of isolates adds mostly repetition. Choosing which repetitions
-to buy is a small lever on a problem whose bottleneck is elsewhere. The SHAP analysis supports this
-reading, since the models converge on the same bins regardless of how their labels were selected.</p>
+<h3>A. Why label efficiency is the wrong objective here</h3>
+<p class="ni">The natural reading of a negative result is that the method was implemented badly. The
+better reading here is that label efficiency is the wrong objective for this problem. AL promises to reach
+a given accuracy with fewer labels, and that promise is only valuable when the accuracy at stake is large.
+On this modality the entire gap between never retraining and retraining on everything is around 5 points
+of AUROC (0.044 to 0.051), and the training years already contain thousands of examples of the few
+spectral peaks that carry the signal. One more year of isolates adds mostly repetition, and choosing which
+repetitions to buy is a small lever on a problem whose bottleneck lies elsewhere. The SHAP analysis
+supports this reading, since the models converged on the same bins regardless of how their labels were
+selected (Fig. 4).</p>
 
-<p>That does not make the acquisition rule irrelevant, but it moves the reason for choosing one. The rules
-differ in which patients are exposed to an error while the labels are being gathered, and that difference
-is large where the accuracy difference is not. A laboratory choosing a policy should therefore decide
-whether it is optimising next year's model or this year's reports. Our results suggest that a budget of a
-few hundred tests, selected by uncertainty, is a reasonable default: it costs the least, it is no worse
-than random by AUROC in all but one configuration, and it substantially reduces the resistant isolates
-that would otherwise be reported susceptible.</p>
+<h3>B. What a laboratory should take from this</h3>
+<p class="ni">The acquisition rule still matters, although for a different reason. The rules differ in
+which patients are exposed to an error while the labels are being gathered, and that difference is large
+where the accuracy difference is small. A laboratory choosing a policy has to decide whether it is
+optimising next year's model or this year's reports. A budget of a few hundred tests selected by
+uncertainty is a reasonable default on these data, since it costs the least, it is no worse than random
+selection by AUROC in all but one configuration, and it substantially reduces the resistant isolates that
+would otherwise be reported susceptible. The <i>K. pneumoniae</i> result at 800 labels is the caveat, both
+because it is the one configuration where uncertainty sampling lost AUROC outright and because it is the
+one where major errors rose (Fig. 3), and a laboratory working on that organism would be buying a 73%
+reduction in very major errors at the price of 66 additional major errors over the year.</p>
 
-<p>Several limitations qualify these conclusions. The released spectra carry no acquisition dates, so the
-arrival batches within 2017 are a deterministic pseudo ordering rather than true calendar quarters; the
-year boundaries themselves are real. The three pairs studied are those with enough labelled isolates for
-a temporal analysis, and the conclusions may not transfer to rarer organisms or to antibiotics with very
-low resistance prevalence. <i>S. aureus</i> with oxacillin has almost no resistant isolates at two of the
-four hospitals, which limits the power of the cross-site comparisons for that pair. The explanations are
-computed from one seed per configuration, so some of the disagreement in the tail of the ranking is
-sampling noise. Finally, all of this is a retrospective simulation on stored spectra. A prospective study
-would have to contend with laboratory turnaround, with clinicians who may override the model, and with
-instrument changes that our protocol holds fixed.</p>
+<h3>C. Limitations</h3>
+<p class="ni">The released spectra carry no acquisition dates, so the arrival batches within 2017 are a
+deterministic pseudo ordering rather than true calendar quarters, although the year boundaries themselves
+are real. The 3 pairs studied are those with enough labelled isolates for a temporal analysis, and the
+conclusions may not transfer to rarer organisms or to antibiotics with very low resistance prevalence.
+<i>S. aureus</i> with oxacillin has almost no resistant isolates at 2 of the 4 hospitals, which limits the
+power of the cross site comparisons for that pair. The explanations were computed from 1 seed per
+configuration, so some of the disagreement in the tail of the ranking is sampling noise. All of this is a
+retrospective simulation on stored spectra, and a prospective study would have to contend with laboratory
+turnaround, with clinicians who may override the model, and with instrument changes that our protocol
+holds fixed.</p>
 
 <h2>VII.&nbsp;&nbsp;Conclusion</h2>
-<p class="ni">We evaluated label acquisition strategies for the maintenance of MALDI-TOF resistance
-prediction models under a temporal protocol on DRIAMS. Across 165 paired comparisons spanning three
-species and antibiotic pairs, four hospitals and five budgets, no uncertainty, diversity or hybrid rule
-outperformed random selection, and two performed worse. The explanation is that retraining makes only
-0.044 to 0.051 of AUROC available in total, and that models trained under different rules rely on the
-same small set of spectral bins. The quantity worth reporting is cost rather than label efficiency:
+<p class="ni">Label acquisition rules for the maintenance of MALDI-TOF resistance prediction models were
+evaluated under a temporal protocol on DRIAMS. Across 165 paired comparisons spanning 3 species and
+antibiotic pairs, 4 hospitals and 5 budgets, no uncertainty, diversity or hybrid rule outperformed random
+selection, and 2 performed worse. The explanation is that retraining makes only 0.044 to 0.051 of AUROC
+available in total, and that models trained under different rules rely on the same small set of spectral
+bins (Table III). The quantity worth reporting is therefore cost rather than label efficiency, in that
 roughly a third of a year of susceptibility tests recovers between half and three quarters of the benefit
-of testing everything. Uncertainty sampling remains worth using, not because it produces a better model,
-but because it reduces by a third to three quarters the resistant isolates that are reported susceptible
-while the labels are being collected. Future work should test whether these conclusions hold
-prospectively, and whether acquisition rules that target the clinical error directly, rather than model
-uncertainty, do better on the operational view.</p>
+of testing everything (Table II). Uncertainty sampling remains worth using for a different reason, since
+it reduced by a third to three quarters the resistant isolates that were reported susceptible while the
+labels were being collected. Future work should test whether these conclusions hold prospectively, and
+whether acquisition rules that target the clinical error directly, rather than model uncertainty, do
+better on the operational view.</p>
 """
 
 
 REFS = """<h2>References</h2>
-<div class=&ldquo;refs&rdquo;><ol>
+<div class="refs"><ol>
 <li>Antimicrobial Resistance Collaborators, &ldquo;Global burden of bacterial antimicrobial resistance in
 2019: a systematic analysis,&rdquo; <i>The Lancet</i>, vol. 399, no. 10325, pp. 629-655, 2022.</li>
 <li>C. Weis <i>et al.</i>, &ldquo;Direct antimicrobial resistance prediction from clinical MALDI-TOF mass
