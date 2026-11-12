@@ -1,0 +1,51 @@
+runs 1800 unique 1800 expected 1800
+
+1. paper's own division rerun vs published E1: 360 runs, identical AUROC in 360, max AUROC difference 0.00e+00, operational counts identical in 360
+
+2. rule minus random, test AUROC, per division (27 comparisons each: 3 pairs x 3 budgets x 3 rules)
+  hash    mean diff -0.0293 to +0.0106; negative means 18/27; raw p<0.05: 6 against the rule, 1 for it; Holm within pair <0.05: 1 against, 0 for; Holm across 27 <0.05: 0; CI above 0: 1, below 0: 6
+      for the rule: ecoli_cro b800 hybrid +0.0106 [+0.0041,+0.0171] p 0.0137 holm_pair 0.123
+  salt1   mean diff -0.0237 to +0.0253; negative means 16/27; raw p<0.05: 3 against the rule, 2 for it; Holm within pair <0.05: 1 against, 1 for; Holm across 27 <0.05: 0; CI above 0: 2, below 0: 3
+      for the rule: kpneu_cro b800 diversity +0.0253 [+0.0143,+0.0364] p 0.0020 holm_pair 0.018
+      for the rule: kpneu_cro b800 hybrid +0.0095 [+0.0009,+0.0181] p 0.0137 holm_pair 0.096
+  salt2   mean diff -0.0442 to +0.0113; negative means 19/27; raw p<0.05: 3 against the rule, 3 for it; Holm within pair <0.05: 1 against, 0 for; Holm across 27 <0.05: 0; CI above 0: 2, below 0: 3
+      for the rule: ecoli_cro b800 hybrid +0.0048 [-0.0008,+0.0103] p 0.0488 holm_pair 0.439
+      for the rule: kpneu_cro b800 diversity +0.0113 [+0.0013,+0.0213] p 0.0273 holm_pair 0.191
+      for the rule: kpneu_cro b800 hybrid +0.0083 [+0.0013,+0.0153] p 0.0371 holm_pair 0.223
+  salt3   mean diff -0.0207 to +0.0086; negative means 20/27; raw p<0.05: 7 against the rule, 0 for it; Holm within pair <0.05: 2 against, 0 for; Holm across 27 <0.05: 0; CI above 0: 0, below 0: 7
+  single  mean diff -0.0620 to +0.0091; negative means 17/27; raw p<0.05: 4 against the rule, 0 for it; Holm within pair <0.05: 3 against, 0 for; Holm across 27 <0.05: 0; CI above 0: 0, below 0: 4
+
+3. mean difference over the 3 budgets (seed level, 95% CI), per division
+  ecoli_cro  uncertainty | hash -0.0029 [-0.0091,+0.0033] | salt1 -0.0021 [-0.0065,+0.0024] | salt2 +0.0003 [-0.0049,+0.0055] | salt3 -0.0023 [-0.0068,+0.0023] | single -0.0036 [-0.0097,+0.0025]
+  ecoli_cro  diversity   | hash +0.0012 [-0.0041,+0.0065] | salt1 +0.0042 [+0.0013,+0.0071] | salt2 -0.0014 [-0.0044,+0.0016] | salt3 +0.0000 [-0.0034,+0.0035] | single +0.0001 [-0.0048,+0.0050]
+  ecoli_cro  hybrid      | hash +0.0016 [-0.0039,+0.0071] | salt1 +0.0008 [-0.0041,+0.0057] | salt2 +0.0014 [-0.0019,+0.0047] | salt3 -0.0002 [-0.0066,+0.0062] | single +0.0022 [-0.0024,+0.0069]
+  kpneu_cro  uncertainty | hash -0.0212 [-0.0287,-0.0138] | salt1 -0.0114 [-0.0244,+0.0015] | salt2 -0.0242 [-0.0353,-0.0131] | salt3 -0.0122 [-0.0241,-0.0003] | single -0.0396 [-0.0512,-0.0279]
+  kpneu_cro  diversity   | hash -0.0022 [-0.0111,+0.0066] | salt1 +0.0104 [+0.0011,+0.0196] | salt2 +0.0015 [-0.0061,+0.0091] | salt3 +0.0040 [-0.0035,+0.0116] | single +0.0075 [+0.0023,+0.0127]
+  kpneu_cro  hybrid      | hash -0.0091 [-0.0195,+0.0013] | salt1 -0.0048 [-0.0132,+0.0035] | salt2 -0.0063 [-0.0151,+0.0026] | salt3 -0.0075 [-0.0140,-0.0011] | single -0.0047 [-0.0124,+0.0029]
+  saur_oxa   uncertainty | hash -0.0084 [-0.0144,-0.0025] | salt1 -0.0069 [-0.0121,-0.0017] | salt2 -0.0056 [-0.0126,+0.0014] | salt3 -0.0081 [-0.0134,-0.0028] | single -0.0089 [-0.0143,-0.0035]
+  saur_oxa   diversity   | hash -0.0049 [-0.0068,-0.0031] | salt1 -0.0047 [-0.0080,-0.0014] | salt2 -0.0052 [-0.0092,-0.0012] | salt3 -0.0071 [-0.0101,-0.0041] | single -0.0025 [-0.0073,+0.0022]
+  saur_oxa   hybrid      | hash -0.0001 [-0.0048,+0.0046] | salt1 +0.0007 [-0.0033,+0.0047] | salt2 -0.0039 [-0.0092,+0.0014] | salt3 -0.0070 [-0.0124,-0.0017] | single -0.0006 [-0.0055,+0.0044]
+
+4. uncertainty minus random at 800 labels, per division
+  ecoli_cro  | hash -0.0061 [-0.0162,+0.0040] p 0.275 | salt1 -0.0024 [-0.0092,+0.0044] p 0.375 | salt2 -0.0018 [-0.0104,+0.0068] p 0.625 | salt3 +0.0014 [-0.0043,+0.0071] p 0.625 | single -0.0015 [-0.0092,+0.0062] p 0.922
+  kpneu_cro  | hash -0.0293 [-0.0446,-0.0141] p 0.002 | salt1 -0.0237 [-0.0367,-0.0107] p 0.004 | salt2 -0.0442 [-0.0607,-0.0278] p 0.002 | salt3 -0.0207 [-0.0359,-0.0056] p 0.010 | single -0.0620 [-0.0882,-0.0357] p 0.002
+  saur_oxa   | hash -0.0129 [-0.0210,-0.0049] p 0.006 | salt1 -0.0160 [-0.0281,-0.0039] p 0.020 | salt2 -0.0089 [-0.0183,+0.0005] p 0.064 | salt3 -0.0150 [-0.0234,-0.0067] p 0.002 | single -0.0203 [-0.0280,-0.0127] p 0.002
+
+5. operational errors over the pool year, uncertainty minus random (mean over 10 seeds, 95% CI)
+  b400 ecoli_cro  | hash VME 75.6->67.9 (-10%) [-13.3,-2.1] ME -73.4 [-117.5,-29.3] | salt1 VME 74.2->70.7 (-5%) [-13.4,+6.4] ME -116.4 [-164.9,-67.9] | salt2 VME 78.5->71.8 (-9%) [-20.0,+6.6] ME -82.5 [-145.1,-19.9] | salt3 VME 79.1->68.4 (-14%) [-18.7,-2.7] ME -88.9 [-123.0,-54.8] | single VME 82.8->72.9 (-12%) [-15.8,-4.0] ME -25.5 [-39.5,-11.5]
+  b400 kpneu_cro  | hash VME 34.8->29.4 (-16%) [-13.3,+2.5] ME -13.9 [-61.5,+33.7] | salt1 VME 33.1->30.5 (-8%) [-7.2,+2.0] ME -34.9 [-73.7,+3.9] | salt2 VME 34.9->35.2 (+1%) [-5.1,+5.7] ME -89.0 [-123.8,-54.2] | salt3 VME 32.4->34.7 (+7%) [-2.5,+7.1] ME -69.0 [-98.9,-39.1] | single VME 35.5->33.2 (-6%) [-6.3,+1.7] ME +8.0 [-1.7,+17.7]
+  b400 saur_oxa   | hash VME 36.7->28.8 (-22%) [-15.1,-0.7] ME -63.7 [-104.0,-23.4] | salt1 VME 37.2->28.8 (-23%) [-13.3,-3.5] ME -47.8 [-73.6,-22.0] | salt2 VME 35.0->29.0 (-17%) [-13.0,+1.0] ME -59.1 [-90.7,-27.5] | salt3 VME 31.6->30.8 (-3%) [-5.3,+3.7] ME -76.6 [-106.8,-46.4] | single VME 39.5->30.6 (-23%) [-12.0,-5.8] ME -4.6 [-16.0,+6.8]
+  b800 ecoli_cro  | hash VME 49.8->33.6 (-33%) [-23.6,-8.8] ME -88.0 [-115.4,-60.6] | salt1 VME 56.4->36.6 (-35%) [-27.1,-12.5] ME -57.9 [-89.4,-26.4] | salt2 VME 53.6->35.2 (-34%) [-25.7,-11.1] ME -62.1 [-102.1,-22.1] | salt3 VME 57.4->32.7 (-43%) [-31.6,-17.8] ME -33.7 [-77.2,+9.8] | single VME 62.4->41.6 (-33%) [-26.3,-15.3] ME +14.2 [-9.0,+37.4]
+  b800 kpneu_cro  | hash VME 19.4->5.2 (-73%) [-18.1,-10.3] ME +66.4 [+46.0,+86.8] | salt1 VME 16.7->7.0 (-58%) [-12.9,-6.5] ME +43.7 [+25.0,+62.4] | salt2 VME 19.0->6.0 (-68%) [-17.3,-8.7] ME +18.7 [-7.0,+44.4] | salt3 VME 18.0->8.7 (-52%) [-12.7,-5.9] ME +37.2 [+6.1,+68.3] | single VME 19.4->7.7 (-60%) [-15.3,-8.1] ME +82.3 [+64.7,+99.9]
+  b800 saur_oxa   | hash VME 18.8->9.2 (-51%) [-14.8,-4.4] ME +5.4 [-7.6,+18.4] | salt1 VME 18.5->9.1 (-51%) [-13.0,-5.8] ME +4.7 [-13.7,+23.1] | salt2 VME 19.7->6.5 (-67%) [-15.9,-10.5] ME +5.3 [-12.5,+23.1] | salt3 VME 20.3->7.1 (-65%) [-15.9,-10.5] ME +13.2 [-7.4,+33.8] | single VME 24.0->11.2 (-53%) [-17.5,-8.1] ME +53.1 [+31.6,+74.6]
+
+6. AUROC of random selection per division (mean over 10 seeds)
+  ecoli_cro  b100  | hash 0.8302 | salt1 0.8313 | salt2 0.8340 | salt3 0.8335 | single 0.8336
+  ecoli_cro  b400  | hash 0.8449 | salt1 0.8416 | salt2 0.8428 | salt3 0.8489 | single 0.8474
+  ecoli_cro  b800  | hash 0.8520 | salt1 0.8522 | salt2 0.8546 | salt3 0.8499 | single 0.8517
+  kpneu_cro  b100  | hash 0.7496 | salt1 0.7522 | salt2 0.7435 | salt3 0.7533 | single 0.7519
+  kpneu_cro  b400  | hash 0.7772 | salt1 0.7678 | salt2 0.7766 | salt3 0.7680 | single 0.7666
+  kpneu_cro  b800  | hash 0.7719 | salt1 0.7711 | salt2 0.7710 | salt3 0.7812 | single 0.7768
+  saur_oxa   b100  | hash 0.8066 | salt1 0.8036 | salt2 0.8086 | salt3 0.8105 | single 0.8090
+  saur_oxa   b400  | hash 0.8292 | salt1 0.8261 | salt2 0.8300 | salt3 0.8276 | single 0.8259
+  saur_oxa   b800  | hash 0.8382 | salt1 0.8417 | salt2 0.8358 | salt3 0.8448 | single 0.8391

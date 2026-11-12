@@ -82,7 +82,7 @@ def _t2(cap):
     for i, r in enumerate(rows):
         body += ("\\midrule\n" if i in (2, 4) else "") + " & ".join(r) + " \\\\\n"
     return ("\\begin{table}[!t]\n\\caption{@CAP@}\n\\label{tab:cost}\n\\centering\\footnotesize\n"
-            "\\begin{tabular}{@{}lrrrrrrr@{}}\n\\toprule\n"
+            "\\setlength{\\tabcolsep}{2.3pt}\n\\begin{tabular}{@{}lrrrrrrr@{}}\n\\toprule\n"
             "\\textit{Pair} & \\textit{\\shortstack[r]{Tests\\\\bought}} & \\textit{Of pool} & "
             "\\textit{\\shortstack[r]{Tests\\\\saved}} & \\textit{Random} & \\textit{Uncert.} & \\textit{Divers.} & "
             "\\textit{Hybrid} \\\\\n\\midrule\n" + body + "\\bottomrule\n\\end{tabular}\n\\end{table}\n").replace("@CAP@", cap)
@@ -138,7 +138,31 @@ a 95\% confidence interval that excludes zero.}
 \end{table}
 """
 
-RAW = {"T4": T4}
+# Table V: Results/extra/camera_ready_robust.txt (notebook 06, 1800 runs, 13 Nov 2026).
+T5 = r"""\begin{table}[!t]
+\caption{The temporal comparison under other divisions of the 2017 pool into arrival batches (27 comparisons per
+division, budgets of 100, 400 and 800 labels). Min and Max are the smallest and largest mean paired AUROC
+difference of a rule against random selection, Neg. counts the negative ones, and Against and For count the
+comparisons below 0.05 after correction within each pair. The last 3 columns are the change in resistant isolates
+reported susceptible under uncertainty sampling at 800 labels.}
+\label{tab:robust}
+\centering\footnotesize
+\setlength{\tabcolsep}{2.0pt}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+\textit{Division} & \textit{Min} & \textit{Max} & \textit{Neg.} & \textit{Against} & \textit{For} & \textit{E. c.} & \textit{K. p.} & \textit{S. a.} \\
+\midrule
+Main experiment & $-0.029$ & $+0.011$ & 18 & 1 & 0 & $-33\%$ & $-73\%$ & $-51\%$ \\
+Redrawn 1 & $-0.024$ & $+0.025$ & 16 & 1 & 1 & $-35\%$ & $-58\%$ & $-51\%$ \\
+Redrawn 2 & $-0.044$ & $+0.011$ & 19 & 1 & 0 & $-34\%$ & $-68\%$ & $-67\%$ \\
+Redrawn 3 & $-0.021$ & $+0.009$ & 20 & 2 & 0 & $-43\%$ & $-52\%$ & $-65\%$ \\
+Single round & $-0.062$ & $+0.009$ & 17 & 3 & 0 & $-33\%$ & $-60\%$ & $-53\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+"""
+
+RAW = {"T4": T4, "T5": T5}
 
 # ----------------------------------------------------------------------------- text changes
 CHANGES = {}
@@ -148,8 +172,8 @@ CHANGES["FRONT"] = [
      "during 2017 in 4 rounds, and were tested on 2018."),
     ("Across 165 paired comparisons no uncertainty, diversity or hybrid rule beat random selection after "
      "correction for multiple testing, and 2 were worse.",
-     "Across 135 paired comparisons no uncertainty, diversity or hybrid rule beat random selection after "
-     "correction for multiple testing."),
+     "Across 135 comparisons no uncertainty, diversity or hybrid rule beat random selection after "
+     "correction for multiple testing, and none did consistently once the batches were redrawn."),
 ]
 
 CHANGES["S1"] = [
@@ -250,7 +274,34 @@ CHANGES["S5"] = [
      "selection."),
 ]
 
+CHANGES["S5"] += [
+    ("<h3>C. Cost of a partial test budget</h3>",
+     "<h3>C. Sensitivity to the arrival batches</h3>\n"
+     "<p class=\"ni\">Because the batches are a pseudo ordering, the comparison was repeated with the same data, "
+     "model and seeds but with the 2017 pool divided differently (Table V). Three further divisions were drawn "
+     "from independent hashes of the isolate code, and in a fourth setting the sequence was removed altogether and "
+     "the whole budget was bought in a single round. Budgets of 100, 400 and 800 labels were used, which gives 27 "
+     "comparisons per division, each corrected within its pair (9 comparisons). The division of the main "
+     "experiment was rerun alongside as a reference, and it reproduced all 360 of the corresponding runs exactly. "
+     "The picture did not change. The mean difference was negative in 16 to 20 of the 27 comparisons of every "
+     "division, and after correction 8 comparisons across the 5 divisions favoured random selection against 1 "
+     "that favoured a rule (diversity sampling on <i>K. pneumoniae</i> at 800 labels in one redrawn division, "
+     "better by 0.025, 95% confidence interval 0.014 to 0.036). That comparison was positive in all 5 divisions, "
+     "by 0.004 to 0.025, and it is the only advantage of any rule that recurred. Uncertainty sampling on "
+     "<i>K. pneumoniae</i> at 800 labels was worse in every division, by 0.021 to 0.062. The operational result "
+     "was equally stable. Uncertainty sampling at 800 labels reduced the resistant isolates reported susceptible "
+     "in every division and for every pair (by 33% to 43% for <i>E. coli</i>, 52% to 73% for "
+     "<i>K. pneumoniae</i> and 51% to 67% for <i>S. aureus</i>), with a 95% interval that excluded zero in all 15 "
+     "cases.</p>\n@@RAW|T5@@\n\n<h3>D. Cost of a partial test budget</h3>"),
+]
+
 CHANGES["S6"] = [
+    # VI-B: the AUROC cost of uncertainty sampling, stated with the intervals now reported
+    ("since it costs the least, it is no worse than random selection by AUROC in all but one configuration, and "
+     "it substantially reduces",
+     "since it costs the least, it gives up little AUROC against random selection (0.017 on average over the "
+     "budgets for <i>K. pneumoniae</i>, 0.006 for <i>S. aureus</i> and nothing measurable for <i>E. coli</i>), and "
+     "it substantially reduces"),
     # VI-B: practical meaning of the major errors (Reviewer 1, point 3)
     ("and a laboratory working on that organism would be buying a 73% reduction in very major errors at the "
      "price of 66 additional major errors over the year.</p>",
@@ -263,7 +314,7 @@ CHANGES["S6"] = [
      "than a free gain. Its origin is visible in the first round, in which both rules face the same model and "
      "the same threshold. With <i>t</i> as low as 0.014 the isolates nearest to it are those the model would "
      "report susceptible, so a budget that covers 63% of the pool (800 of 1273) confirms nearly all of the "
-     "susceptible reports by testing and leaves the resistant reports unconfirmed, and 76% of the untested "
+     "susceptible reports by testing and leaves the resistant reports unconfirmed, and 75% of the untested "
      "susceptible isolates then lay above the threshold, against 42% under random selection. The model handed to "
      "the following year shows a related shift. On the 2018 isolates the models maintained by uncertainty "
      "sampling made more very major errors and fewer major errors than those maintained by random selection in "
@@ -279,7 +330,8 @@ CHANGES["S6"] = [
      "simulation therefore represents drift between years but not within a year, and anything that changes "
      "during a year (the seasonal mix of isolates, an outbreak, a serviced or replaced instrument) reaches every "
      "batch in equal measure. A rule that adapts to recent isolates could gain from a real ordering in a way "
-     "these experiments cannot show."),
+     "these experiments cannot show, and redrawing the batches establishes only that the result does not depend on "
+     "one particular division."),
     ("All of this is a retrospective simulation on stored spectra, and a prospective study would have to contend "
      "with laboratory turnaround, with clinicians who may override the model, and with instrument changes that "
      "our protocol holds fixed.",
@@ -295,7 +347,8 @@ CHANGES["S6"] = [
      "uncertainty, diversity or hybrid rule outperformed random selection, and 2 performed worse.",
      "Across 135 paired comparisons spanning 3 species and antibiotic pairs, 4 hospitals and 5 budgets, no "
      "uncertainty, diversity or hybrid rule outperformed random selection, and the differences that could be "
-     "detected favoured random selection."),
+     "detected favoured random selection. The same held when the pool year was divided into batches in 4 other "
+     "ways."),
     ("Future work should test whether these conclusions hold prospectively, and",
      "Future work should test whether these conclusions hold prospectively, on isolates with real acquisition "
      "dates, and"),

@@ -15,6 +15,7 @@ this log records what they showed and every decision taken because of them.
 | E4_crosssite | RQ4 | 880 | 880 | done 4 Oct 2026; S. aureus at D dropped (no labels) |
 | E5_recal | threshold ablation | 240 | 239 | 1 job missing from download (kpneu random b100 s3) |
 | D1_dev | combination search (dev split) | 510 | 510 | done 5 Oct 2026; search stopped (see log) |
+| R1_batching | robustness to the arrival batches | 1 800 | 1 800 | done 13 Nov 2026 (camera ready) |
 | **Total** | | **2 860** | **2 859** | |
 
 ## Checklist
@@ -34,6 +35,26 @@ this log records what they showed and every decision taken because of them.
 - [ ] Confirm target-journal impact factors on JCR
 
 ---
+
+## 2026-11-13 (robustness to the arrival batches, notebook 06)
+
+**Run.** 1 800 jobs on Colab (9 accounts, T4, xgboost 3.4.1, same versions as October): 3 pairs, 4 rules, budgets 100,
+400 and 800, 10 seeds, under 5 divisions of the 2017 pool (the paper's own hash, 3 independent hashes, and a single
+round with no sequence). One result (salt2, E. coli, 400, diversity, seed 0) was on Drive but missing from the summary
+CSV and was added by hand from its record.
+
+**Observed** (`paper/camera_ready/stats/camera_ready_robust.txt`).
+- The rerun of the paper's own division reproduced all 360 corresponding E1 runs exactly (AUROC and operational counts).
+- Rule minus random, test AUROC: negative mean in 18, 16, 19, 20 and 17 of the 27 comparisons per division. Holm within
+  pair (9 comparisons): 8 comparisons against the rule across the 5 divisions, 1 for it (diversity on K. pneumoniae at
+  800 in the first redrawn division, +0.025 [+0.014, +0.036]; positive in all 5 divisions, +0.004 to +0.025).
+- Uncertainty on K. pneumoniae at 800 is worse in every division (-0.021 to -0.062).
+- Operational very major errors under uncertainty at 800 fall in every division and pair (E. coli -33% to -43%,
+  K. pneumoniae -52% to -73%, S. aureus -51% to -67%; all 15 intervals exclude zero). Major errors for K. pneumoniae
+  at 800 rise in every division (+19 to +82).
+
+**Decided.** The negative result and the safety result do not depend on the division. The one comparison that favours
+a rule is reported in the paper. Added Section V-C and a table; camera ready is 8 pages in IEEE A4.
 
 ## 2026-11-12 (camera ready for ICIC 2026, paper 280, provisionally accepted)
 
