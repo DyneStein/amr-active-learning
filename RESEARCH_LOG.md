@@ -35,6 +35,38 @@ this log records what they showed and every decision taken because of them.
 
 ---
 
+## 2026-11-12 (camera ready for ICIC 2026, paper 280, provisionally accepted)
+
+**Reviewer points and what the records show.**
+- The paper said the Holm correction ran across the whole family of comparisons. `analysis.vs_random` applies it
+  within each pair and site (15 comparisons). The reported corrected value 0.029 is 15 x 0.00195, the floor of an exact
+  two sided Wilcoxon test on 10 seeds, so the number was right for the test that ran and the description was wrong.
+  Across all 45 temporal comparisons the floor is 0.088 and nothing survives. Both are now reported, with the mean
+  paired AUROC difference and its 95% interval for every comparison (`paper/camera_ready/stats/`).
+- Temporal: 14 of 45 below 0.05 before correction, 12 against the rule and 2 for it. Within pair correction leaves 2,
+  both against the rule (K. pneumoniae uncertainty at 800, -0.029 [-0.045, -0.014]; S. aureus diversity at 40,
+  -0.008 [-0.013, -0.003]).
+- Cross site: 5 seeds give a floor of 0.0625, so those tests could never reach 0.05. In 30 of the 120 comparisons the
+  budget is at least the size of the target pool, every rule buys the same isolates and the difference is exactly
+  zero. That leaves 90 informative comparisons (135 in all, not 165): 64 negative means, 26 positive, 7 intervals
+  exclude zero (6 against the rule, 1 for it).
+- Text corrected to match the code: hybrid rule (4b most uncertain, k-means, one per cluster), diversity (k-center on
+  50 principal components), threshold (highest value that still gives 90% sensitivity), cross site protocol (budgets
+  25 to 400, one round, half of the 2018 target isolates held out per seed, source model fitted on DRIAMS-A 2015 to 2018).
+- Major errors: K. pneumoniae at 800 labels, uncertainty minus random +66.4 [+46.0, +86.8] major errors and
+  -14.2 [-18.1, -10.3] very major errors over the pool year. In round 1 (same model, t = 0.0136) 76% of the untested
+  susceptible isolates lie above the threshold under uncertainty against 42% under random. On 2018 the models
+  maintained by uncertainty have a higher very major error rate and a lower major error rate than those maintained
+  by random selection in 14 of 15 configurations.
+
+**Added.** `amr_al/robust.py` and notebook 06: the temporal comparison repeated with the 2017 pool divided
+differently (independent hash divisions salt1 to salt3, and one round with no sequence). Not yet run.
+`paper/camera_ready/`: build.py takes the text of the submitted `paper/ieee.py` and applies only the passages listed
+in revisions.py, then writes an A4 IEEEtran `main.tex`.
+
+**Next.** Run notebook 06, write the robustness paragraph and table, decide the page count (strict IEEE A4 gives 8
+pages), proofread, PDF eXpress, copyright form. Deadline 16 Nov 2026.
+
 ## 2026-10-09 · Review questions: SHAP, selection logs, cost comparison, share folder
 
 Four things were asked for in review. Three needed new code; one was already answerable from the
