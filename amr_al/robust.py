@@ -13,7 +13,7 @@ so the only thing that changes is which isolates arrive together and in what ord
 
 Run (from the AMR_AL folder, AMR_AL_ROOT pointing at a folder that holds data/driams_compact and
 config/best_params.json):
-    python -m amr_al.robust run  --variants salt1,salt2,salt3,single --budgets 100,400,800
+    python -m amr_al.robust run  --variants salt1,salt2,single,hash,salt3 --budgets 100,400,800
     python -m amr_al.robust table
 """
 import argparse
@@ -68,7 +68,7 @@ def _on_ac():
         return True
 
 
-def run(variants=("salt1", "salt2", "single", "salt3"), budgets=(100, 400, 800), seeds=None, pairs=None,
+def run(variants=("salt1", "salt2", "single", "hash", "salt3"), budgets=(100, 400, 800), seeds=None, pairs=None,
         need_ac=True, shard=0, n_shards=1, hours=None):
     """Run the unfinished jobs of this shard. Every job is saved as soon as it ends, so a disconnect loses one job
     at most and running the same call again continues. `hours` stops starting new jobs after that long."""
@@ -107,6 +107,45 @@ def run(variants=("salt1", "salt2", "single", "salt3"), budgets=(100, 400, 800),
             el = time.time() - t0
             print(f"{time.strftime('%H:%M:%S')} {done}/{len(todo)} done, {el/done:.1f} s per job, "
                   f"about {(len(todo)-done)*el/done/3600:.1f} h left; last {j['id']} auroc {res['final']['auroc']:.4f}", flush=True)
+
+
+def preflight(pair="ecoli_cro", rule="random", budget=100, seed=0):
+    """Runs one job of the paper's own division and compares it with the published E1 record, if that record is in
+    results/E1_temporal. A difference means the software versions changed since October, which is harmless here
+    because every division, including the paper's own, is rerun in the same environment. Never stops the notebook."""
+    try:
+        j = jobs(["hash"], [budget], [seed], [pair])
+        j = [x for x in j if x["strategy"] == rule][0]
+        os.makedirs(os.path.join(paths.RESULTS, EXP), exist_ok=True)
+        if os.path.isfile(_out(j)):
+            with open(_out(j)) as fh:
+                new = json.load(fh)
+        else:
+            orig = data.assign_rounds
+            data.assign_rounds = _assign("hash")
+            try:
+                new = runner.run_job(j, log=lambda *a: None)
+            finally:
+                data.assign_rounds = orig
+            tmp = _out(j) + ".tmp"
+            with open(tmp, "w") as fh:
+                json.dump(new, fh, default=runner._jsonable)
+            os.replace(tmp, _out(j))
+            with open(_out(j)) as fh:
+                new = json.load(fh)
+        print(f"preflight job ran on {new['device']}: pool {new['sizes']['pool']}, test {new['sizes']['test']}, "
+              f"AUROC {new['final']['auroc']:.6f}, versions {new['versions']}")
+        old_f = os.path.join(paths.RESULTS, "E1_temporal", f"E1_temporal__{pair}__DRIAMS-A__{rule}__b{budget}__s{seed}.json")
+        if os.path.isfile(old_f):
+            with open(old_f) as fh:
+                old = json.load(fh)
+            same = abs(old["final"]["auroc"] - new["final"]["auroc"]) < 1e-9
+            print(f"published run: AUROC {old['final']['auroc']:.6f}, versions {old['versions']} -> "
+                  + ("reproduced exactly" if same else "not identical (versions differ, see docstring; the rerun is still valid)"))
+        else:
+            print("published E1 record not found in results/E1_temporal, comparison skipped")
+    except Exception as e:                                   # informative only
+        print("preflight could not run:", repr(e))
 
 
 def summary(write=True):
@@ -166,7 +205,7 @@ def summary(write=True):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=["run", "table"])
-    ap.add_argument("--variants", default="salt1,salt2,salt3,single")
+    ap.add_argument("--variants", default="salt1,salt2,single,hash,salt3")
     ap.add_argument("--budgets", default="100,400,800")
     ap.add_argument("--seeds", default=",".join(map(str, config.SEEDS)))
     ap.add_argument("--pairs", default=",".join(config.PAIRS))

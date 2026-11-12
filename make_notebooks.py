@@ -277,21 +277,24 @@ share.build("/content/drive/MyDrive/AMR_Final", spectra=True,
 # 06 · Robustness to the arrival batches (camera ready, reviewer request)
 The released spectra have no acquisition dates, so the four arrival batches of 2017 come from a hash of the isolate
 code. This notebook repeats the temporal comparison (random, uncertainty, diversity, hybrid) with the same data, model
-and seeds but with the pool divided differently: two or three independent divisions (`salt1`, `salt2`, `salt3`) and one
-run with no sequence at all (`single`, the whole budget bought in one round).
+and seeds but with the pool divided differently: independent divisions (`salt1`, `salt2`, `salt3`), one run with no
+sequence at all (`single`, the whole budget bought in one round), and the paper's own division again (`hash`) as a
+check that this environment reproduces the published runs.
 
 Before running: upload the new `amr_al/robust.py` into the shared folder's `amr_al/`.
 `Runtime -> Change runtime type -> T4 GPU`, set the values below, then `Runtime -> Run all`.
 Several accounts can run at once with different `SHARD` numbers. Running again continues where it stopped.
 """),
     code('''SHARD = 0              # 0, 1, 2, ... one per account
-N_SHARDS = 3           # how many accounts run in parallel
+N_SHARDS = 7           # how many accounts run in parallel (the same number in every account)
 HOURS = 3.5            # stop starting new jobs after this
-VARIANTS = ["salt1", "salt2", "single", "salt3"]   # done in this order
+VARIANTS = ["salt1", "salt2", "single", "hash", "salt3"]   # done in this order; "hash" repeats the paper's own division
 BUDGETS = [100, 400, 800]'''),
     code(SETUP),
     code('''from amr_al import robust
 data.stage_to_local(["DRIAMS-A"])
+if SHARD == 0:
+    robust.preflight()       # one job compared with the published record (about a minute)
 robust.run(VARIANTS, BUDGETS, shard=SHARD, n_shards=N_SHARDS, hours=HOURS, need_ac=False)'''),
     code('''rows = robust.summary()      # writes tables/R1_batching_runs.csv and prints the paired comparison
 drive.flush_and_unmount()
