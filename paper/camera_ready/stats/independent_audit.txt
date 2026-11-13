@@ -1,0 +1,148 @@
+run counts: temporal 660 cross site 880 total 1540
+  OK  total simulations: recomputed 1540.0000, paper 1540
+  OK  temporal simulations: recomputed 660.0000, paper 660
+
+Data sizes (IV-A)
+  OK  ecoli_cro train: recomputed 1481.0000, paper 1481
+  OK  ecoli_cro pool: recomputed 2094.0000, paper 2094
+  OK  ecoli_cro test: recomputed 1386.0000, paper 1386
+  OK  ecoli_cro test prevalence %: recomputed 18.4704, paper 18.5
+  OK  kpneu_cro train: recomputed 812.0000, paper 812
+  OK  kpneu_cro pool: recomputed 1273.0000, paper 1273
+  OK  kpneu_cro test: recomputed 775.0000, paper 775
+  OK  kpneu_cro test prevalence %: recomputed 13.9355, paper 13.9
+  OK  saur_oxa train: recomputed 1141.0000, paper 1141
+  OK  saur_oxa pool: recomputed 1445.0000, paper 1445
+  OK  saur_oxa test: recomputed 1204.0000, paper 1204
+  OK  saur_oxa test prevalence %: recomputed 14.6179, paper 14.6
+
+Bounds (V-A, abstract)
+  OK  ecoli_cro never retrained: recomputed 0.8232, paper 0.823
+  OK  ecoli_cro retrained on all: recomputed 0.8669, paper 0.867
+  OK  ecoli_cro gap: recomputed 0.0438, paper 0.044
+  OK  kpneu_cro never retrained: recomputed 0.7417, paper 0.742
+  OK  kpneu_cro retrained on all: recomputed 0.7878, paper 0.788
+  OK  kpneu_cro gap: recomputed 0.0462, paper 0.046
+  OK  saur_oxa never retrained: recomputed 0.7988, paper 0.799
+  OK  saur_oxa retrained on all: recomputed 0.8498, paper 0.85
+  OK  saur_oxa gap: recomputed 0.0510, paper 0.051
+
+Temporal paired comparisons (IV-C, V-B, Table I)
+  OK  comparisons: recomputed 45.0000, paper 45
+  OK  raw p<0.05: recomputed 14.0000, paper 14
+  OK  raw p<0.05 against the rule: recomputed 12.0000, paper 12
+  OK  intervals excluding zero: recomputed 14.0000, paper 14
+  OK  the 14 with raw p<0.05 are the 14 whose interval excludes zero: True
+  survivors within pair: [('kpneu_cro', 800, 'uncertainty', np.float64(-0.0293), np.float64(-0.045), np.float64(-0.014), np.float64(0.0293)), ('saur_oxa', 40, 'diversity', np.float64(-0.0078), np.float64(-0.013), np.float64(-0.003), np.float64(0.0293))]
+  OK  survivors within pair: recomputed 2.0000, paper 2
+  OK  smallest Holm across 45: recomputed 0.0879, paper 0.088
+  OK  exact floor on 10 seeds: recomputed 0.0020, paper 0.002
+  OK  floor x15: recomputed 0.0293, paper 0.029
+  OK  floor x45: recomputed 0.0879, paper 0.088
+  OK  floor on 5 seeds: recomputed 0.0625, paper 0.0625
+  OK  K.pneu unc 800 mean: recomputed 0.0293, paper 0.029
+  OK    lo: recomputed 0.0141, paper 0.014
+  OK    hi: recomputed 0.0446, paper 0.045
+  OK  S.aur div 40 mean: recomputed 0.0078, paper 0.008
+  OK    lo: recomputed 0.0030, paper 0.003
+  OK    hi: recomputed 0.0126, paper 0.013
+  OK  Table I: 45 cells, mismatches [], daggers 14
+
+Average AUROC cost of uncertainty sampling (VI-B)
+  ecoli_cro: mean -0.0005 [-0.0057, +0.0047]  p=0.9219
+  OK  E. coli 'nothing measurable': interval includes zero
+  kpneu_cro: mean -0.0173 [-0.0251, -0.0095]  p=0.0020
+  OK  kpneu_cro average cost: recomputed 0.0173, paper 0.017
+  saur_oxa: mean -0.0062 [-0.0111, -0.0013]  p=0.0371
+  OK  saur_oxa average cost: recomputed 0.0062, paper 0.006
+
+Table II (share of the gain)
+  OK  ecoli_cro b400 random: recomputed 0.4967, paper 0.5
+  OK  ecoli_cro b400 uncertainty: recomputed 0.4306, paper 0.43
+  OK  ecoli_cro b400 diversity: recomputed 0.5389, paper 0.54
+  OK  ecoli_cro b400 hybrid: recomputed 0.3752, paper 0.38
+     tests saved 80.9%
+  OK  ecoli_cro b800 random: recomputed 0.6586, paper 0.66
+  OK  ecoli_cro b800 uncertainty: recomputed 0.5193, paper 0.52
+  OK  ecoli_cro b800 diversity: recomputed 0.6973, paper 0.7
+  OK  ecoli_cro b800 hybrid: recomputed 0.9009, paper 0.9
+     tests saved 61.8%
+  OK  kpneu_cro b400 random: recomputed 0.7687, paper 0.77
+  OK  kpneu_cro b400 uncertainty: recomputed 0.2792, paper 0.28
+  OK  kpneu_cro b400 diversity: recomputed 0.6535, paper 0.65
+  OK  kpneu_cro b400 hybrid: recomputed 0.6037, paper 0.6
+     tests saved 68.6%
+  OK  kpneu_cro b800 random: recomputed 0.6552, paper 0.66
+  OK  kpneu_cro b800 uncertainty: recomputed 0.0197, paper 0.02
+  OK  kpneu_cro b800 diversity: recomputed 0.8157, paper 0.82
+  OK  kpneu_cro b800 hybrid: recomputed 0.6654, paper 0.67
+     tests saved 37.2%
+  OK  saur_oxa b400 random: recomputed 0.5959, paper 0.6
+  OK  saur_oxa b400 uncertainty: recomputed 0.3752, paper 0.38
+  OK  saur_oxa b400 diversity: recomputed 0.4095, paper 0.41
+  OK  saur_oxa b400 hybrid: recomputed 0.5707, paper 0.57
+     tests saved 72.3%
+  OK  saur_oxa b800 random: recomputed 0.7708, paper 0.77
+  OK  saur_oxa b800 uncertainty: recomputed 0.5172, paper 0.52
+  OK  saur_oxa b800 diversity: recomputed 0.6509, paper 0.65
+  OK  saur_oxa b800 hybrid: recomputed 0.8453, paper 0.85
+     tests saved 44.6%
+  400 as share of pool: [19.1, 31.4, 27.7]
+
+Operational errors over the pool year (V-D, VI-B)
+  OK  ecoli_cro VME random: recomputed 49.8000, paper 49.8
+  OK  ecoli_cro VME uncertainty: recomputed 33.6000, paper 33.6
+  OK  ecoli_cro ME random: recomputed 347.8000, paper 347.8
+  OK  ecoli_cro ME uncertainty: recomputed 259.8000, paper 259.8
+     VME reduction 32.5%
+  OK  kpneu_cro VME random: recomputed 19.4000, paper 19.4
+  OK  kpneu_cro VME uncertainty: recomputed 5.2000, paper 5.2
+  OK  kpneu_cro ME random: recomputed 123.7000, paper 123.7
+  OK  kpneu_cro ME uncertainty: recomputed 190.1000, paper 190.1
+     VME reduction 73.2%
+  OK  saur_oxa VME random: recomputed 18.8000, paper 18.8
+  OK  saur_oxa VME uncertainty: recomputed 9.2000, paper 9.2
+  OK  saur_oxa ME random: recomputed 134.6000, paper 134.6
+  OK  saur_oxa ME uncertainty: recomputed 140.0000, paper 140.0
+     VME reduction 51.1%
+  K. pneumoniae trade: ME + 66.4 VME - 14.2 ratio 4.68
+
+Resistant share bought by uncertainty at 400 (V-D)
+  OK  ecoli_cro bought resistant %: recomputed 14.8750, paper 14.9
+  OK  ecoli_cro arrival rate %: recomputed 22.2063, paper 22.2
+  OK  kpneu_cro bought resistant %: recomputed 9.7000, paper 9.7
+  OK  kpneu_cro arrival rate %: recomputed 14.2184, paper 14.2
+  BAD saur_oxa bought resistant %: recomputed 10.7500, paper 10.8
+  OK  saur_oxa arrival rate %: recomputed 18.7543, paper 18.8
+
+2018 operating point, uncertainty vs random (VI-B)
+     exception: ecoli_cro b100 vme 0.166 vs 0.186, me 0.403 vs 0.374
+  OK  configurations with higher VME and lower ME: recomputed 14.0000, paper 14
+  K. pneumoniae threshold in round 1: 0.0105 (not quoted in the paper)
+
+Cross site (IV-A, V-B)
+  OK  pair and site combinations: recomputed 8.0000, paper 8
+  OK  cross site simulations: recomputed 880.0000, paper 880
+  OK  comparisons: recomputed 120.0000, paper 120
+  OK  zero by construction: recomputed 30.0000, paper 30
+  OK  zero exactly when budget >= target pool
+  OK  negative means: recomputed 64.0000, paper 64
+  OK  intervals excluding zero: recomputed 7.0000, paper 7
+  OK  of which against the rule: recomputed 6.0000, paper 6
+  OK  smallest cross site p: recomputed 0.0625, paper 0.0625
+  total informative comparisons: 135
+
+Robustness to the arrival batches (V-B)
+  OK  runs: recomputed 1800.0000, paper 1800
+  OK  reference division reproduces published runs: recomputed 360.0000, paper 360
+  hash   negative 18/27, against 1, for [], K.pneu diversity 800 +0.0074
+  salt1  negative 16/27, against 1, for [('kpneu_cro', 800, 'diversity', np.float64(0.0253))], K.pneu diversity 800 +0.0253
+  salt2  negative 19/27, against 1, for [], K.pneu diversity 800 +0.0113
+  salt3  negative 20/27, against 2, for [], K.pneu diversity 800 +0.0035
+  single negative 17/27, against 3, for [], K.pneu diversity 800 +0.0068
+  OK  against the rule across divisions: recomputed 8.0000, paper 8
+  OK  for a rule across divisions: recomputed 1.0000, paper 1
+  (VME reduction per division is in the paper only as 'in every division and for every pair'; checked below)
+  OK  uncertainty at 800 reduced operational VME with an interval below zero in all 15 cases
+
+ISSUES: ['saur_oxa bought resistant %']

@@ -134,7 +134,7 @@ def _effects():
                 " & ".join(cell(key[(pair, b, rule)]) for b in (40, 100, 200, 400, 800)) + " \\\\\n"
     return ("\\begin{table}[!t]\n\\caption{Mean paired AUROC difference ($\\times$100) between each rule and random "
             "selection on the 2018 isolates, $\\pm$ the half width of its 95\\% confidence interval (10 seeds). "
-            "A dagger marks an interval excluding zero.}\n\\label{tab:effects}\n"
+            "A dagger marks an interval excluding zero, before correction.}\n\\label{tab:effects}\n"
             "\\centering\\scriptsize\n\\setlength{\\tabcolsep}{1.6pt}\n\\begin{tabular}{@{}llrrrrr@{}}\n\\toprule\n"
             "\\textit{Pair} & \\textit{Rule} & \\textit{40} & \\textit{100} & \\textit{200} & \\textit{400} & "
             "\\textit{800} \\\\\n\\midrule\n" + body + "\\bottomrule\n\\end{tabular}\n\\end{table}\n")
@@ -212,8 +212,8 @@ CHANGES["S4"] = [
      "rather than by calendar quarter (the MD5 digest of the code modulo 4). The batches decide which isolates "
      "compete for the budget of a round, but their order carries no calendar information. The cross site "
      "experiment moves a model trained at DRIAMS-A to each of DRIAMS-B, DRIAMS-C and DRIAMS-D. The source model "
-     "was fitted on the DRIAMS-A isolates of 2015 to 2018, the 2018 isolates of the target site were divided in "
-     "half, stratified by label and redrawn for every seed, into a pool and a test set, the budget (25 to 400 "
+     "was fitted on the DRIAMS-A isolates of 2015 to 2018. The 2018 isolates of the target site were divided in "
+     "half, stratified by label and redrawn for every seed, into a pool and a test set. The budget (25 to 400 "
      "labels) was spent in a single round, and the model was refitted on the source isolates together with the "
      "bought ones. <i>S. aureus</i> with oxacillin has no labelled isolates at DRIAMS-D, which leaves 8 "
      "combinations of pair and site."),
@@ -228,11 +228,11 @@ CHANGES["S4"] = [
      "resulting p values were corrected across the whole family of comparisons with the Holm procedure [20]. "
      "Only the corrected values are reported below.",
      "Each rule was compared with random selection on matched seeds using the exact two sided Wilcoxon signed rank "
-     "test on the paired difference in test AUROC, and the resulting p values were corrected with the Holm "
+     "test on the paired difference in test AUROC. The resulting p values were corrected with the Holm "
      "procedure [20], both within each species and antibiotic pair (15 comparisons) and across all 45 temporal "
      "comparisons. With 10 seeds no value can fall below 0.002 before correction, 0.029 after correction within a "
-     "pair or 0.088 across all 45, and with the 5 seeds of the cross site setting no test can reach 0.05, so every "
-     "comparison is also given as the mean paired difference with its 95% confidence interval (Table IV)."),
+     "pair or 0.088 across all 45, and with the 5 seeds of the cross site setting no test can reach 0.05. Every "
+     "comparison is therefore also given as the mean paired difference with its 95% confidence interval (Table IV)."),
 ]
 
 CHANGES["S5"] = [
@@ -258,10 +258,10 @@ CHANGES["S5"] = [
      # Reviewer 2 point 2
      "<p>Because the batches are a pseudo ordering, the comparison at 100, 400 and 800 labels was repeated with 3 "
      "further divisions of the 2017 pool drawn from independent hashes and once with the whole budget bought in a "
-     "single round, and a rerun of the original division reproduced all 360 published runs exactly. After "
+     "single round. A rerun of the original division reproduced all 360 published runs exactly. After "
      "correction within each pair, 8 comparisons across the 5 divisions favoured random selection and 1 favoured a "
      "rule (diversity sampling on <i>K. pneumoniae</i> at 800 labels, better by 0.025, 0.014 to 0.036, and positive "
-     "in every division), and uncertainty sampling at 800 labels reduced the resistant isolates reported "
+     "in every division). Uncertainty sampling at 800 labels reduced the resistant isolates reported "
      "susceptible in every division and for every pair.</p>"),
     # deletions for length
     (" The antibiotic is ceftriaxone for the first 2 pairs and oxacillin for the third.", ""),

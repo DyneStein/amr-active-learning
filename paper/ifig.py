@@ -8,12 +8,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np, pandas as pd
 
-S = os.environ.get("AMR_CSV_DIR", "/tmp/work/"
-                   "project/"
-                   "be62cb5a-6a7c-4b00-8fc2-cd3dee7d27b9/scratchpad") + "/"
-SHAP = os.environ.get("AMR_SHAP_DIR", "~/Research/"
-                      "Baterial-AMR/_Drive-Uploads/updated_drive_stuff/tables") + "/"
 HERE = os.path.dirname(os.path.abspath(__file__))
+# AMR_CSV_DIR: folder with all_results.csv and e1_rounds.csv written by paper_data.py
+# AMR_SHAP_DIR: folder with the SHAP tables written by notebook 05
+S = os.environ.get("AMR_CSV_DIR", os.path.join(HERE, "_data")) + "/"
+SHAP = os.environ.get("AMR_SHAP_DIR", os.path.join(HERE, "..", "..", "Results", "tables")) + "/"
 OUT = os.path.join(HERE, "ifig") + "/"
 os.makedirs(OUT, exist_ok=True)
 

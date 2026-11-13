@@ -36,6 +36,18 @@ this log records what they showed and every decision taken because of them.
 
 ---
 
+## 2026-11-14, later (independent audit of the camera ready numbers)
+
+- `paper/camera_ready/stats/independent_audit.py` recomputes every number in the 6 page text from the raw per run
+  JSON records with SciPy (exact Wilcoxon, Student t) and a separately written Holm procedure: 100 checks, all
+  agree. The only flag is S. aureus bought resistant share 10.75%, printed as 10.8% (correct rounding).
+- Raw folder check: E4_crosssite holds 934 files = 880 runs + 18 browser duplicate copies "(1)" (identical results,
+  and the loader keys runs by their job fields so nothing was counted twice) + 36 empty S. aureus DRIAMS-D runs
+  (pool and test 0, excluded).
+- Fixes: Table I caption now says the daggers are before correction; reply letter range corrected to 0.003 to 0.025
+  (salt3 value is 0.0035); four long new sentences split. Figure scripts no longer hard code local paths.
+- All reviewer and editor points confirmed present in the PDF text.
+
 ## 2026-11-14 (camera ready cut to 6 pages)
 
 - Decision: keep the camera ready at the 6 page limit with as much of the submitted text as possible. Submitted

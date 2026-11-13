@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 import numpy as np, pandas as pd
 from matplotlib.lines import Line2D
 
-S = "/tmp/work/project/7fb83f58-8ee1-4d80-abd0-7a5cdba3f0f3/scratchpad/"
-OUT = S + "fig/"
+HERE = os.path.dirname(os.path.abspath(__file__))
+S = os.environ.get("AMR_CSV_DIR", os.path.join(HERE, "_data")) + "/"   # tables written by paper_data.py
+OUT = os.path.join(HERE, "fig") + "/"
 os.makedirs(OUT, exist_ok=True)
 
 plt.rcParams.update({

@@ -1,6 +1,7 @@
 # Schematic diagrams for the AMR paper, monochrome line art sized for a 133 mm text measure.
 # The viewBox is ~510 units wide, so a font-size of 10 units renders at about 7.4 pt.
-OUT = "/tmp/work/project/7fb83f58-8ee1-4d80-abd0-7a5cdba3f0f3/scratchpad/fig/"
+import os
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fig") + "/"
 K, G, L = "#1a1a1a", "#555555", "#999999"
 FILL, SHADE = "#ffffff", "#f1f1f1"
 F = 'font-family="Helvetica Neue, Helvetica, Arial, sans-serif"'
