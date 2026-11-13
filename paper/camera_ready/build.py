@@ -16,7 +16,9 @@ import ieee          # noqa: E402  the submitted source
 import revisions     # noqa: E402
 
 FIGW = {"f1_pipeline": True, "f2_curves": True, "f3_errors": True, "f4_shap": True}
-ieee.fig = lambda name, num, cap, wide=False: f"\n@@FIG|{name}|{cap}@@\n"
+WIDTH = {}   # all figures at full text width
+DROP = {"f4_shap"}   # Fig. 4 removed for the 6 page limit (Table III carries the same result)
+ieee.fig = lambda name, num, cap, wide=False: "" if name in DROP else f"\n@@FIG|{name}|{cap}@@\n"
 ieee.table = lambda num, cap, body, wide=False: f"\n@@TAB|{num}|{cap}@@\n"
 
 
@@ -37,7 +39,7 @@ def inline(s):
 
 def figure(name, cap):
     return ("\\begin{figure*}[!t]\n\\centering\n"
-            f"\\includegraphics[width=\\textwidth]{{figures/{name}.pdf}}\n"
+            f"\\includegraphics[width={WIDTH.get(name, 1.0)}\\textwidth]{{figures/{name}.pdf}}\n"
             f"\\caption{{{inline(cap)}}}\n\\label{{fig:{name}}}\n\\end{{figure*}}\n")
 
 
@@ -80,7 +82,7 @@ def main():
     keywords = re.search(r'<p class="idx"><b>Keywords</b>&mdash;(.*?)</p>', front, re.S).group(1)
     t1 = "@@TAB|I|Position of this study relative to representative prior work. Explainable artificial " \
          "intelligence (XAI) here means any reported feature attribution.@@"
-    secs = [revised("S1", ieee.S1), t1, revised("S2", ieee.S2), revised("S3", ieee.S3()), revised("S4", ieee.S4()),
+    secs = [revised("S1", ieee.S1), revised("S2", ieee.S2), revised("S3", ieee.S3()), revised("S4", ieee.S4()),
             revised("S5", ieee.S5()), revised("S6", ieee.S6())]
     refs = re.findall(r"<li>(.*?)</li>", ieee.REFS, re.S)
     assert len(refs) == 20
@@ -89,10 +91,15 @@ def main():
         + "\\begin{IEEEkeywords}\n" + " ".join(inline(keywords).split()) + "\n\\end{IEEEkeywords}\n\n" \
         + "\n".join(body(s) for s in secs) + revisions.ACK \
         + "\\begin{thebibliography}{20}\n" + bib + "\n\\end{thebibliography}\n\\end{document}\n"
-    for roman, label in (("V", "robust"), ("IV", "cross"), ("III", "shap"), ("II", "cost"), ("I", "position")):
+    for roman, label in (("IV", "effects"), ("III", "shap"), ("II", "cost")):
         tex = re.sub(r"\bTable %s\b" % roman, r"Table~\\ref{tab:%s}" % label, tex)
     tex = re.sub(r"\bFig\. (\d)\b", r"Fig.~\1", tex)
     tex = re.sub(r"(?<![\w\\{])\[(\d{1,2})\]", r"\\cite{r\1}", tex)
+    # layout only: define Fig. 3 one subsection earlier so that LaTeX can place it on the page where it is discussed
+    m = re.search(r"\\begin\{figure\*\}\[!t\]\n\\centering\n\\includegraphics\[[^]]*\]\{figures/f3_errors\.pdf\}.*?\\end\{figure\*\}\n", tex, re.S)
+    tex = tex[:m.start()] + tex[m.end():]
+    i = tex.index("\\subsection{Cost of a partial test budget}")
+    tex = tex[:i] + m.group(0) + "\n" + tex[i:]
     open(os.path.join(HERE, "main.tex"), "w").write(tex)
     words = len(re.sub(r"\\[a-zA-Z]+|[{}$]", " ", inline(abstract)).split())
     print("wrote main.tex,", len(tex) // 1024, "KB; abstract words:", words)

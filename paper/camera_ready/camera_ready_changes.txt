@@ -1,0 +1,404 @@
+CHANGES IN THE CAMERA READY VERSION (PID280.pdf), paper 280
+Every sentence not listed here is exactly as in the submitted paper.
+DELETED = submitted words removed to fit 6 pages, nothing reworded.
+CHANGED = a correction or an addition for the reviewers (new wording).
+
+47 passages: 23 deletions, 24 changes.
+Layout: Table I of the submitted paper (position of this study) and Fig. 4 (SHAP dot matrix) are removed to
+fit 6 pages, since Section II-C and Table III carry the same content. A new table of all 45 temporal effect
+sizes is added (Reviewer 2, point 1). Tables are renumbered I (new), II (cost), III (SHAP).
+
+====================================================================================================
+Abstract
+====================================================================================================
+
+[1] CHANGED
+  SUBMITTED TEXT:
+    5 budgets and 10 seeds per configuration.
+  CAMERA READY TEXT:
+    5 budgets and 10 seeds per configuration (5 across hospitals).
+
+[2] DELETED
+  SUBMITTED TEXT:
+    during 2017 in 4 quarterly rounds, and were tested on 2018.
+  CAMERA READY TEXT:
+    during 2017 in 4 rounds, and were tested on 2018.
+
+[3] CHANGED
+  SUBMITTED TEXT:
+    Across 165 paired comparisons no uncertainty, diversity or hybrid rule beat random selection
+    after correction for multiple testing, and 2 were worse.
+  CAMERA READY TEXT:
+    Across 135 paired comparisons no uncertainty, diversity or hybrid rule beat random selection
+    after correction for multiple testing.
+
+====================================================================================================
+I. Introduction
+====================================================================================================
+
+[4] DELETED
+  SUBMITTED TEXT:
+    2017 are offered to an acquisition rule in 4 quarterly rounds under a fixed budget
+  CAMERA READY TEXT:
+    2017 are offered to an acquisition rule in 4 rounds under a fixed budget
+
+[5] CHANGED
+  SUBMITTED TEXT:
+    The main result is negative and holds across 165 paired comparisons
+  CAMERA READY TEXT:
+    The main result is negative and holds across 135 paired comparisons
+
+[6] CHANGED
+  SUBMITTED TEXT:
+    for MALDI-TOF resistance prediction, covering 3 species and antibiotic pairs, 4 hospitals and 5
+    budgets, with 10 seeds per configuration.
+  CAMERA READY TEXT:
+    for MALDI-TOF resistance prediction.
+
+[7] CHANGED
+  SUBMITTED TEXT:
+    rely on the same spectral regions (Fig. 4 and Table III), which is consistent with the absence
+    of a difference between them.
+  CAMERA READY TEXT:
+    rely on the same spectral regions (Table III).
+
+[8] DELETED
+  SUBMITTED TEXT:
+    , but whether it does so for MALDI-TOF resistance prediction has not been established
+  CAMERA READY TEXT:
+    (nothing)
+
+[9] DELETED
+  SUBMITTED TEXT:
+    , which turns the useful quantity into cost,
+  CAMERA READY TEXT:
+    ,
+
+[10] DELETED
+  SUBMITTED TEXT:
+    Work on this modality either assumes that all labels are already present or evaluates a fixed
+    training set.
+  CAMERA READY TEXT:
+    (nothing)
+
+[11] CHANGED
+  SUBMITTED TEXT:
+    [2], released under a CC0 public domain waiver and archived at Dryad
+    (doi:10.5061/dryad.bzkh1899q).
+  CAMERA READY TEXT:
+    [2].
+
+====================================================================================================
+II. Related Work
+====================================================================================================
+
+[12] DELETED
+  SUBMITTED TEXT:
+    prediction was extended to several antibiotics at once,
+  CAMERA READY TEXT:
+    (nothing)
+
+[13] DELETED
+  SUBMITTED TEXT:
+    Those settings resemble ours in that labels are expensive and the data distribution moves, but
+    none of them involves mass spectra or susceptibility testing.
+  CAMERA READY TEXT:
+    (nothing)
+
+[14] CHANGED
+  SUBMITTED TEXT:
+    has rarely reported the 2 clinical error types separately (Table I).
+  CAMERA READY TEXT:
+    has rarely reported the 2 clinical error types separately.
+
+[15] DELETED
+  SUBMITTED TEXT:
+    The combination of a temporal protocol, an explicit test budget, both error types, and an
+    explanation of why the acquisition rules behave as they do is what this paper contributes.
+  CAMERA READY TEXT:
+    (nothing)
+
+====================================================================================================
+III. Method
+====================================================================================================
+
+[16] DELETED
+  SUBMITTED TEXT:
+    , measured as the absolute difference between the 2 [10].
+  CAMERA READY TEXT:
+    [10].
+
+[17] CHANGED
+  SUBMITTED TEXT:
+    Diversity sampling applies a k-center greedy procedure in the spectral space so that the
+    selected isolates are spread out rather than clustered [11]. The hybrid rule splits the round
+    budget evenly between the uncertainty and diversity criteria [14].
+  CAMERA READY TEXT:
+    Diversity sampling applies a k-center greedy procedure to the first 50 principal components of
+    the spectra so that the selected isolates are spread out rather than clustered [11]. The hybrid
+    rule takes the 4b isolates closest to the threshold, where b is the number bought in the round,
+    and buys one from each of b clusters formed by k-means [14].
+
+[18] DELETED
+  SUBMITTED TEXT:
+    They distribute a single prediction across the input features in the unique way that satisfies
+    local accuracy, missingness and consistency, and for tree ensembles they have an exact
+    polynomial time solution, so no sampling approximation is involved.
+  CAMERA READY TEXT:
+    (nothing)
+
+[19] CHANGED
+  SUBMITTED TEXT:
+    library itself [19], which removes any possibility of a mismatch between the explained model and
+    the deployed one.
+  CAMERA READY TEXT:
+    library itself [19].
+
+[20] CHANGED
+  SUBMITTED TEXT:
+    Importance of a bin is its mean absolute SHAP value, and its direction was obtained by splitting
+    the isolates at the median intensity of that bin and taking the difference in mean SHAP between
+    the halves, because averaging signed values over all isolates simply follows the majority class
+    (here susceptible).
+  CAMERA READY TEXT:
+    Importance of a bin is its mean absolute SHAP value.
+
+====================================================================================================
+IV. Experimental Setup
+====================================================================================================
+
+[21] CHANGED
+  SUBMITTED TEXT:
+    rather than by calendar quarter. The cross site experiment moves a model trained at DRIAMS-A to
+    each of DRIAMS-B, DRIAMS-C and DRIAMS-D.
+  CAMERA READY TEXT:
+    rather than by calendar quarter (the MD5 digest of the code modulo 4). The batches decide which
+    isolates compete for the budget of a round, but their order carries no calendar information. The
+    cross site experiment moves a model trained at DRIAMS-A to each of DRIAMS-B, DRIAMS-C and
+    DRIAMS-D. The source model was fitted on the DRIAMS-A isolates of 2015 to 2018, the 2018
+    isolates of the target site were divided in half, stratified by label and redrawn for every
+    seed, into a pool and a test set, the budget (25 to 400 labels) was spent in a single round, and
+    the model was refitted on the source isolates together with the bought ones. S. aureus with
+    oxacillin has no labelled isolates at DRIAMS-D, which leaves 8 combinations of pair and site.
+
+[22] DELETED
+  SUBMITTED TEXT:
+    , and labels follow the convention of the original release, in which resistant and intermediate
+    are coded together as 1
+  CAMERA READY TEXT:
+    (nothing)
+
+[23] CHANGED
+  SUBMITTED TEXT:
+    to set the threshold t at the lowest value achieving 90% sensitivity to resistance
+  CAMERA READY TEXT:
+    to set the threshold t at the highest value that still gave 90% sensitivity to resistance
+
+[24] CHANGED
+  SUBMITTED TEXT:
+    giving 1540 retraining simulations in total.
+  CAMERA READY TEXT:
+    giving 1540 retraining simulations in total (660 temporal and 880 cross site).
+
+[25] CHANGED
+  SUBMITTED TEXT:
+    Each rule was compared with random selection on matched seeds using the Wilcoxon signed rank
+    test, and the resulting p values were corrected across the whole family of comparisons with the
+    Holm procedure [20]. Only the corrected values are reported below.
+  CAMERA READY TEXT:
+    Each rule was compared with random selection on matched seeds using the exact two sided Wilcoxon
+    signed rank test on the paired difference in test AUROC, and the resulting p values were
+    corrected with the Holm procedure [20], both within each species and antibiotic pair (15
+    comparisons) and across all 45 temporal comparisons. With 10 seeds no value can fall below 0.002
+    before correction, 0.029 after correction within a pair or 0.088 across all 45, and with the 5
+    seeds of the cross site setting no test can reach 0.05, so every comparison is also given as the
+    mean paired difference with its 95% confidence interval (Table IV).
+
+====================================================================================================
+V. Results
+====================================================================================================
+
+[26] CHANGED
+  SUBMITTED TEXT:
+    of which 14 reached p < 0.05 before correction and 2 survived the Holm procedure, both of them
+    in favour of random selection. Uncertainty sampling on K. pneumoniae at 800 labels was worse by
+    0.029 AUROC (p = 0.029 corrected) and diversity sampling on S. aureus at 40 labels was worse by
+    0.008 (p = 0.029 corrected). The cross site experiment adds 120 further comparisons across
+    DRIAMS-B, DRIAMS-C and DRIAMS-D, and none of those reached significance in either direction,
+    before or after correction. These 165 paired comparisons produce no evidence that an informed
+    rule helps, and 2 instances in which it hurts. The result held over 3 species, 2 antibiotic
+    classes, 4 hospitals and 2 deployment settings, including the cross site case in which the new
+    data differs most from the training data and in which AL would be expected to help most.
+  CAMERA READY TEXT:
+    of which 14 reached p < 0.05 before correction (12 against the rule and 2 for it, as Table IV
+    shows) and 2 survived the Holm procedure within their pair, both of them in favour of random
+    selection. Uncertainty sampling on K. pneumoniae at 800 labels was worse by 0.029 AUROC (95%
+    confidence interval 0.014 to 0.045) and diversity sampling on S. aureus at 40 labels was worse
+    by 0.008 (0.003 to 0.013), each at p = 0.029. Corrected across all 45 instead, no comparison
+    stays below 0.05 (smallest 0.088). The cross site experiment adds 120 further comparisons, but
+    in 30 of them the budget was at least as large as the pool of the target site, so every rule
+    bought the same isolates. Of the other 90 the mean difference was negative in 64, and its
+    interval excluded zero in 7, 6 against the rule and 1 for it. These 135 paired comparisons
+    produce no evidence that an informed rule helps, and the differences that can be detected mostly
+    favour random selection. [new Table I: all 45 temporal effect sizes with 95% confidence
+    intervals] Because the batches are a pseudo ordering, the comparison at 100, 400 and 800 labels
+    was repeated with 3 further divisions of the 2017 pool drawn from independent hashes and once
+    with the whole budget bought in a single round, and a rerun of the original division reproduced
+    all 360 published runs exactly. After correction within each pair, 8 comparisons across the 5
+    divisions favoured random selection and 1 favoured a rule (diversity sampling on K. pneumoniae
+    at 800 labels, better by 0.025, 0.014 to 0.036, and positive in every division), and uncertainty
+    sampling at 800 labels reduced the resistant isolates reported susceptible in every division and
+    for every pair.
+
+[27] DELETED
+  SUBMITTED TEXT:
+    The antibiotic is ceftriaxone for the first 2 pairs and oxacillin for the third.
+  CAMERA READY TEXT:
+    (nothing)
+
+[28] CHANGED
+  SUBMITTED TEXT:
+    Contrary to what might be expected, uncertainty
+  CAMERA READY TEXT:
+    Uncertainty
+
+[29] DELETED
+  SUBMITTED TEXT:
+    The paired tests make this precise.
+  CAMERA READY TEXT:
+    (nothing)
+
+[30] DELETED
+  SUBMITTED TEXT:
+    It finds the cases the model was about to get wrong, and it does so while spending less of the
+    budget on cases the model already handles correctly.
+  CAMERA READY TEXT:
+    (nothing)
+
+[31] DELETED
+  SUBMITTED TEXT:
+    A small shared core is found by every model and the tail shifts with the training set.
+  CAMERA READY TEXT:
+    (nothing)
+
+[32] DELETED
+  SUBMITTED TEXT:
+    , where 1.00 means identical lists and 0.00 means no bin in common
+  CAMERA READY TEXT:
+    (nothing)
+
+[33] DELETED
+  SUBMITTED TEXT:
+    The comparison that stands out is the last one before the mean.
+  CAMERA READY TEXT:
+    (nothing)
+
+[34] DELETED
+  SUBMITTED TEXT:
+    Because all 6 models are fitted to the same underlying relationship, and the easily located part
+    of it is located by all of them, similar accuracy is the expected outcome.
+  CAMERA READY TEXT:
+    (nothing)
+
+[35] CHANGED
+  SUBMITTED TEXT:
+    makes the structure clearer (Fig. 4).
+  CAMERA READY TEXT:
+    makes the structure clearer.
+
+[36] DELETED
+  SUBMITTED TEXT:
+    We do not assign these masses to particular proteins. The low mass region is crowded, several
+    known markers fall within a few daltons of one another, and a 3 dalton bin cannot separate them.
+  CAMERA READY TEXT:
+    (nothing)
+
+[37] DELETED
+  SUBMITTED TEXT:
+    Retraining helps, and the direction of the effect was consistent across all 3 pairs, which
+    confirms the premise of the study. The size of the effect is modest.
+  CAMERA READY TEXT:
+    (nothing)
+
+====================================================================================================
+VI. Discussion and VII. Conclusion
+====================================================================================================
+
+[38] DELETED
+  SUBMITTED TEXT:
+    The SHAP analysis supports this reading, since the models converged on the same bins regardless
+    of how their labels were selected (Fig. 4).
+  CAMERA READY TEXT:
+    (nothing)
+
+[39] DELETED
+  SUBMITTED TEXT:
+    A laboratory choosing a policy has to decide whether it is optimising next year's model or this
+    year's reports.
+  CAMERA READY TEXT:
+    (nothing)
+
+[40] CHANGED
+  SUBMITTED TEXT:
+    since it costs the least, it is no worse than random selection by AUROC in all but one
+    configuration, and
+  CAMERA READY TEXT:
+    since it costs the least, it gives up little AUROC against random selection (0.017 on average
+    over the budgets for K. pneumoniae, 0.006 for S. aureus and nothing measurable for E. coli), and
+
+[41] CHANGED
+  SUBMITTED TEXT:
+    because it is the one configuration where uncertainty sampling lost AUROC outright
+  CAMERA READY TEXT:
+    because it is the configuration where uncertainty sampling lost the most AUROC
+
+[42] CHANGED
+  SUBMITTED TEXT:
+    price of 66 additional major errors over the year.
+  CAMERA READY TEXT:
+    price of 66 additional major errors over the year. A major error lasts only until the culture
+    based result arrives, so about 5 additional major errors for each very major error avoided is a
+    trade that a laboratory may accept, but it is a trade rather than a free gain. On the 2018
+    isolates the models maintained by uncertainty sampling also made more very major errors and
+    fewer major errors than those maintained by random selection in 14 of the 15 configurations, so
+    a laboratory adopting the rule should set t again on recent labels.
+
+[43] CHANGED
+  SUBMITTED TEXT:
+    although the year boundaries themselves are real.
+  CAMERA READY TEXT:
+    although the year boundaries themselves are real. The simulation therefore represents drift
+    between years but not within a year, and a rule that adapts to recent isolates could gain from a
+    real ordering in a way these experiments cannot show.
+
+[44] CHANGED
+  SUBMITTED TEXT:
+    All of this is a retrospective simulation on stored spectra, and
+  CAMERA READY TEXT:
+    All of this is a retrospective simulation on stored spectra, in which a bought label is
+    available at once, and the safety result needs confirmation on isolates collected in real time
+    before it is used to set a testing policy. Beyond that,
+
+[45] DELETED
+  SUBMITTED TEXT:
+    Label acquisition rules for the maintenance of MALDI-TOF resistance prediction models were
+    evaluated under a temporal protocol on DRIAMS.
+  CAMERA READY TEXT:
+    (nothing)
+
+[46] CHANGED
+  SUBMITTED TEXT:
+    Across 165 paired comparisons spanning 3 species and antibiotic pairs, 4 hospitals and 5
+    budgets, no uncertainty, diversity or hybrid rule outperformed random selection, and 2 performed
+    worse.
+  CAMERA READY TEXT:
+    Across 135 paired comparisons spanning 3 species and antibiotic pairs, 4 hospitals and 5
+    budgets, no uncertainty, diversity or hybrid rule outperformed random selection.
+
+[47] CHANGED
+  SUBMITTED TEXT:
+    Future work should test whether these conclusions hold prospectively, and
+  CAMERA READY TEXT:
+    Future work should test whether these conclusions hold prospectively, on isolates with real
+    acquisition dates, and
+

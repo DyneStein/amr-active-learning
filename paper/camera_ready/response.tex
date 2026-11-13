@@ -16,7 +16,9 @@ Paper ID 280, ``Cost and Safety of Label Acquisition Strategies for MALDI-TOF An
 
 We thank both reviewers and the editor. Every comment was acted on. The points that needed new computation were
 recomputed from the stored run records, and one new experiment (1800 further runs) was carried out for Reviewer 2,
-point 2. Section and table numbers below refer to the camera ready version.
+point 2. To keep the paper within 6 pages, the submitted Table I (position of this study) and Fig. 4 (SHAP dot matrix)
+were removed, since Section II-C and Table III carry the same content, and a few sentences that repeated others were
+deleted. Section and table numbers below refer to the camera ready version.
 
 \section*{Reviewer 2}
 
@@ -28,35 +30,39 @@ comparisons (3 rules at 5 budgets). The reported value of 0.029 is 15 times 0.00
 exact Wilcoxon signed rank test can return on 10 seeds, so the number was produced by the test that ran and the
 description of that test was wrong.
 
-All tests were recomputed from the per run records. Section IV-D now states the settings (exact two sided Wilcoxon
-signed rank test, 10 matched seeds per comparison in the temporal setting and 5 in the cross site setting, Holm
-correction both within each pair and across all 45 temporal comparisons) and the smallest attainable values (0.002
-uncorrected, 0.029 within a pair, 0.088 across 45, and 0.0625 on 5 seeds). Section V-B reports both corrections.
-Within a pair, 2 comparisons remain below 0.05 and both favour random selection. Across all 45 the smallest value is
-0.088, so no comparison is significant in either direction, and we now describe the 2 losses as the largest effects
-observed rather than as established ones. As requested, every comparison is reported as an effect size, the mean
-paired difference in AUROC with its 95\% confidence interval. Uncertainty sampling on \textit{K. pneumoniae} at 800
-labels was worse than random selection by 0.029 (0.014 to 0.045), and diversity sampling on \textit{S. aureus} at 40
-labels by 0.008 (0.003 to 0.013).
+All tests were recomputed from the per run records. Section IV-C now states the settings (exact two sided Wilcoxon
+signed rank test on the paired difference in test AUROC, 10 matched seeds per comparison in the temporal setting and 5
+in the cross site setting, Holm correction both within each pair and across all 45 temporal comparisons) and the
+smallest attainable values (0.002 uncorrected, 0.029 within a pair, 0.088 across all 45, and 0.0625 on 5 seeds). Section
+V-B reports both corrections. Within a pair, 2 comparisons remain below 0.05 and both favour random selection. Across
+all 45 the smallest value is 0.088, so no comparison is significant in either direction. The abstract and the
+conclusion no longer state that 2 rules were worse. As requested, effect sizes are reported with 95\% confidence
+intervals. The new Table I gives the mean paired difference in AUROC and its interval for all 45 temporal comparisons,
+and Section V-B gives the two largest losses (uncertainty sampling on \textit{K. pneumoniae} at 800 labels, 0.029, 95\%
+interval 0.014 to 0.045, and diversity sampling on \textit{S. aureus} at 40 labels, 0.008, 0.003 to 0.013). Since the
+table shows that uncertainty sampling lost AUROC in more than one configuration, the sentence in Section VI-B that
+called it no worse than random selection in all but one configuration now gives the average cost instead (0.017 for
+\textit{K. pneumoniae}, 0.006 for \textit{S. aureus} and nothing measurable for \textit{E. coli}).
 
 For the cross site setting the text no longer says that no comparison reached significance, because with 5 seeds none
-could have. Those comparisons are now read as effect sizes (Section V-B and Table II).
+could have. Those comparisons are now read as effect sizes (Section V-B): the mean difference was negative in 64 of the
+90 informative comparisons, and its interval excluded zero in 7 (6 against the rule and 1 for it).
 
 \pt{2. Demonstrate that the negative findings are robust to the hash based sequential batching.}
 
-A new experiment was run for this point (Section V-C and Table III). The temporal comparison was repeated with the
-same data, model, tuned settings and seeds, and only the division of the 2017 pool changed. Three further divisions
-were drawn from independent hashes of the isolate code, and in a fourth setting the sequence was removed and the
-whole budget was bought in a single round. The division of the main experiment was rerun alongside as a reference
-and reproduced all 360 of the corresponding published runs exactly, which also confirms that the simulation is
-reproducible.
+A new experiment was run for this point (Section V-B, last paragraph). The temporal comparison at 100, 400 and 800
+labels was repeated with the same data, model, tuned settings and seeds, and only the division of the 2017 pool
+changed. Three further divisions were drawn from independent hashes of the isolate code, and in a fourth setting the
+sequence was removed and the whole budget was bought in a single round. The division of the main experiment was rerun
+alongside as a reference and reproduced all 360 of the corresponding published runs exactly, which also confirms that
+the simulation is reproducible.
 
 The negative finding held in every division. The mean difference against random selection was negative in 16 to 20
 of the 27 comparisons of each division. After correction within each pair, 8 comparisons across the 5 divisions
 favoured random selection and 1 favoured a rule (diversity sampling on \textit{K. pneumoniae} at 800 labels in one
-redrawn division, better by 0.025, 95\% confidence interval 0.014 to 0.036). We report that comparison openly. It
-was positive in all 5 divisions, by 0.004 to 0.025, and is the only advantage of any rule that recurred. The safety
-result was equally stable, since uncertainty sampling at 800 labels reduced the resistant isolates reported
+redrawn division, better by 0.025, 95\% confidence interval 0.014 to 0.036). We report that comparison openly in the
+paper. It was positive in all 5 divisions, by 0.004 to 0.025, and is the only advantage of any rule that recurred. The
+safety result was equally stable, since uncertainty sampling at 800 labels reduced the resistant isolates reported
 susceptible in every division and for every pair, with an interval excluding zero in all 15 cases.
 
 We also state plainly what this experiment cannot show. The released spectra carry no acquisition dates, so no
@@ -64,60 +70,54 @@ division reproduces a calendar order (Section VI-C).
 
 \pt{3. Provide sufficient cross hospital experimental details and reproducible simulation accounting.}
 
-Section IV-B is new and gives the cross site protocol: the source model is fitted on the DRIAMS-A isolates of 2015 to
-2018, the 2018 isolates of each target site are divided in half (stratified by label and redrawn for every seed) into
-a pool and a test set, the budget (25, 50, 100, 200 or 400 labels) is spent in a single round, and the model is
-refitted on the source isolates together with the bought ones. Table II is new and gives, for each of the 8
-combinations of pair and site, the pool and test sizes, the number of resistant isolates in the test half, the AUROC
-of the source model used unchanged and of the model refitted on the whole pool, and the mean difference of each rule
-against random selection.
+Section IV-A now gives the cross site protocol: the source model is fitted on the DRIAMS-A isolates of 2015 to 2018,
+the 2018 isolates of each target site are divided in half (stratified by label and redrawn for every seed) into a pool
+and a test set, the budget (25 to 400 labels) is spent in a single round, and the model is refitted on the source
+isolates together with the bought ones. \textit{S. aureus} with oxacillin has no labelled isolates at DRIAMS-D, which
+leaves 8 combinations of pair and site.
 
-Preparing that table showed something the submitted version did not disclose. In 30 of the 120 cross site
-comparisons the budget was at least as large as the pool of the target site, so every rule bought the same isolates
-and the difference is zero by construction. The informative comparisons are therefore 90, and 135 in all rather than
-165. The abstract, the introduction, the results and the conclusion now use 135.
+Preparing these details showed something the submitted version did not disclose. In 30 of the 120 cross site
+comparisons the budget was at least as large as the pool of the target site, so every rule bought the same isolates and
+the difference is zero by construction. The informative comparisons are therefore 90, and 135 in all rather than 165.
+The abstract, the introduction, the results and the conclusion now use 135.
 
-Section IV-C gives the accounting of the 1540 simulations (660 temporal, from 3 pairs, 22 configurations and 10
-seeds, and 880 cross site, from 8 combinations of pair and site, 22 configurations and 5 seeds) and states what a
-seed fixes. Three descriptions in the method were also corrected so that they match the code that produced the
-results: the hybrid rule (the $4b$ isolates closest to the threshold, grouped into $b$ clusters, one bought per
-cluster), the diversity rule (k-center on the first 50 principal components) and the threshold (the highest value
-that still gives 90\% sensitivity). No result changed because of these corrections.
+Section IV-B now splits the 1540 simulations into 660 temporal and 880 cross site. In full, these are 660 temporal, from 3 pairs, 22 configurations made of 4
+rules at 5 budgets and the 2 bounds, and 10 seeds, and 880 cross site, from 8 combinations of pair and site, 22
+configurations and 5 seeds. Three descriptions in the method were also corrected so that they match the code that
+produced the results: the hybrid rule (the $4b$ isolates closest to the threshold, grouped into $b$ clusters by
+$k$-means, one bought per cluster), the diversity rule ($k$-center on the first 50 principal components) and the
+threshold (the highest value that still gives 90\% sensitivity). No result changed because of these corrections.
 
 \section*{Reviewer 1}
 
 \pt{1. Clarify the limitations of the simulated data ordering.}
 
-Section IV-A now states how the batches are formed (the MD5 digest of the isolate code modulo 4, the same for every
-rule and seed) and that their order carries no calendar information. Section VI-C now states that the simulation
-represents drift between years but not within a year, that a rule which adapts to recent isolates could gain from a
-real ordering in a way these experiments cannot show, and that redrawing the batches (Section V-C) establishes only
-that the result does not depend on one particular division. The words ``quarterly rounds'' were replaced by
-``rounds'' in the abstract and the introduction.
+Section IV-A now states how the batches are formed (the MD5 digest of the isolate code modulo 4) and that their order
+carries no calendar information. Section VI-C now states that the simulation represents drift between years but not
+within a year, and that a rule which adapts to recent isolates could gain from a real ordering in a way these
+experiments cannot show. Redrawing the batches (Section V-B) establishes that the result does not depend on one
+particular division. The words ``quarterly rounds'' were replaced by ``rounds'' in the abstract and the introduction.
 
 \pt{2. Provide more details about the statistical comparisons.}
 
-See the reply to Reviewer 2, point 1. Section IV-D gives the test, the pairing, the number of seeds, both correction
-families and the smallest attainable p values, and Section V-B gives the mean paired difference with its 95\%
-confidence interval for the comparisons discussed.
+See the reply to Reviewer 2, point 1. Section IV-C gives the test, the pairing, the number of seeds, both correction
+families and the smallest attainable p values, and Table I gives the mean paired difference with its 95\% confidence
+interval for every temporal comparison.
 
 \pt{3. Discuss the practical implications of the increased major errors for some configurations.}
 
-A paragraph was added to Section VI-B. It states what a major error costs in practice (a broader agent than was
-needed until the culture based result arrives), gives the size of the trade for \textit{K. pneumoniae} at 800 labels
-(about 5 additional major errors for each very major error avoided, 66 against 14) and explains where it comes from.
-With a threshold as low as 0.014 the isolates nearest to it are those the model would report susceptible, so a
-budget that covers 63\% of the pool confirms nearly all susceptible reports by testing and leaves the resistant
-reports unconfirmed. The same paragraph reports that on the 2018 isolates the models maintained by uncertainty
-sampling made more very major errors and fewer major errors than those maintained by random selection in 14 of the
-15 configurations, and recommends that a laboratory using the rule set the threshold again on recent labels.
+Section VI-B now states what the trade means in practice. For \textit{K. pneumoniae} at 800 labels it is about 5
+additional major errors for each very major error avoided (66 against 14), and since a major error lasts only until
+the culture based result arrives, a laboratory may accept it, but it is a trade rather than a free gain. The same
+paragraph reports that on the 2018 isolates the models maintained by uncertainty sampling made more very major errors
+and fewer major errors than those maintained by random selection in 14 of the 15 configurations, and recommends that a
+laboratory using the rule set the threshold again on recent labels.
 
 \pt{4. Discuss the need for validation on real time clinical data.}
 
-Section VI-C now states that the study is a retrospective simulation on stored spectra from the hospitals of a single
-country, in which a bought label is available at once, that the operational counts are what the reports would have
-been rather than what happened to patients, and that the safety result needs confirmation on isolates collected in
-real time, with their dates, before it is used to set a testing policy. The conclusion names this as future work.
+Section VI-C now states that the study is a retrospective simulation in which a bought label is available at once,
+and that the safety result needs confirmation on isolates collected in real time before it is used to set a testing
+policy. The conclusion names validation on isolates with real acquisition dates as future work.
 
 \section*{Editor}
 
@@ -126,8 +126,7 @@ emails are given without titles. The notice 979-8-3195-2818-6/26/\$31.00 \copyri
 of the first page only. The title and the author list are unchanged, and the reference list is unchanged (20
 references).
 
-\pt{Length.} In the IEEE A4 format, with the material added for the reviewers (2 tables, 2 subsections and the
-extended discussion and limitations), the paper is 8 pages, which uses the 2 additional pages the conference allows.
+\pt{Length.} The paper is 6 pages in the IEEE A4 format.
 
 \pt{Proofreading.} The whole paper was proofread again.
 
